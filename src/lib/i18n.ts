@@ -103,7 +103,7 @@ export const copyByLocale: Record<Locale, I18nDict> = {
         },
         chartResult: {
             title: '차트 결과 발표',
-            resultLabel: '이번 주 성적',
+            resultLabel: "이번 주의 기록",
             revenue: '수익/손실',
             fandomChange: '팬덤 변화',
             repChange: '평판 변화',
@@ -228,7 +228,7 @@ export const copyByLocale: Record<Locale, I18nDict> = {
         },
         chartResult: {
             title: 'Chart Result Announcement',
-            resultLabel: 'This Week\'s Record',
+            resultLabel: "This Week's Record",
             revenue: 'Revenue/Loss',
             fandomChange: 'Fandom Change',
             repChange: 'Reputation Change',

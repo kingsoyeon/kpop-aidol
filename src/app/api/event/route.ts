@@ -1,40 +1,84 @@
 import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = "force-dynamic";
-import { generateText } from '@/lib/gemini'
+import { generateEventJSON } from '@/lib/gemini'
 
 export async function POST(req: NextRequest) {
   try {
-    const { members } = await req.json()
-    const riskyMember = members[0]; // 단순화된 로직
+    const { members, company, turn } = await req.json()
 
-    // [MOCK] 진짜 Gemini 이벤트 생성 대신 고정된 시나리오 중 하나를 반환합니다.
-    // 나중에 진짜 API 연동 시 prompt 생성 및 generateText(prompt) 로직을 활성화하세요.
-    const mockEvents = [
-      {
-        title: "SNS 말실수",
-        description: `${riskyMember.name}이(가) 어젯밤 SNS 라이브 중 부적절한 단어를 사용하여 팬들 사이에서 논란이 되고 있습니다.`,
+    // 이벤트의 대상이 될 멤버를 랜덤하게 하나 선정
+    const riskyMember = members[Math.floor(Math.random() * members.length)];
+
+    const prompt = `
+K-pop 기획사 경영 게임의 위기 이벤트를 생성해줘.
+
+[상황]
+위험 멤버: ${riskyMember.name} (구설수 ${riskyMember.risk.scandal}%, 열애설 ${riskyMember.risk.romance}%)
+회사 평판: ${company.reputation}/100
+현재 팬덤: ${company.fanCount}명
+자금: ${company.money}원
+
+아래 JSON 형식으로만 응답해. 다른 텍스트 없이:
+{
+  "title": "이벤트 제목 (10자 이내)",
+  "description": "상황 설명 (2문장, 구체적이고 현실적으로)",
+  "memberName": "${riskyMember.name}",
+  "choices": [
+    {
+      "text": "선택지 1 텍스트 (빠른 대응)",
+      "effect": { "reputation": -10, "money": 0, "fanCount": -5000 },
+      "resultMessage": "선택 결과 한 문장"
+    },
+    {
+      "text": "선택지 2 텍스트 (소극적 대응)",
+      "effect": { "reputation": -30, "money": 0, "fanCount": -20000 },
+      "resultMessage": "선택 결과 한 문장"
+    },
+    {
+      "text": "선택지 3 텍스트 (비용 들지만 확실한 해결)",
+      "effect": { "reputation": -5, "money": -3000000, "fanCount": -1000 },
+      "resultMessage": "선택 결과 한 문장"
+    }
+  ]
+}
+    `.trim();
+
+    let resultData;
+    try {
+      const jsonString = await generateEventJSON(prompt);
+      // Strip markdown codeblocks
+      const cleanJson = jsonString.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      resultData = JSON.parse(cleanJson);
+    } catch (eventErr) {
+      console.error('[event] Gemini Generation Failed:', eventErr);
+      // Fallback data
+      resultData = {
+        title: "SNS 운영 미숙",
+        description: `${riskyMember.name}이(가) 공식 계정에 개인적인 사진을 잘못 올려 팬들 사이에서 소소한 논란이 발생했습니다. (AI 서버 연결 실패로 인한 기본 이벤트)`,
         memberName: riskyMember.name,
         choices: [
-          { text: "즉각 사과문 발표", effect: { reputation: -5, money: 0, fanCount: -2000 }, resultMessage: "빠른 대처로 논란이 소폭 가라앉았습니다. (Mock)" },
-          { text: "무대응으로 일관", effect: { reputation: -20, money: 0, fanCount: -10000 }, resultMessage: "팬들의 실망감이 커져 평판이 크게 하락했습니다. (Mock)" },
-          { text: "자필 편지 개시", effect: { reputation: 2, money: -500000, fanCount: 1000 }, resultMessage: "진정성 있는 모습에 일부 팬들이 마음을 돌렸습니다. (Mock)" }
+          {
+            text: "즉시 삭제 후 가벼운 사과",
+            effect: { reputation: -5, money: 0, fanCount: -1000 },
+            resultMessage: "빠른 대처로 큰 문제 없이 지나갔습니다."
+          },
+          {
+            text: "무대응으로 일관",
+            effect: { reputation: -15, money: 0, fanCount: -3000 },
+            resultMessage: "팬들의 불만이 조금 쌓였습니다."
+          },
+          {
+            text: "담당 매니저 교체 건의",
+            effect: { reputation: 0, money: -500000, fanCount: 0 },
+            resultMessage: "책임을 묻는 과정에서 약간의 비용이 발생했습니다."
+          }
         ]
-      },
-      {
-        title: "열애설 포착",
-        description: `${riskyMember.name}이(가) 다른 타사 아이돌과 카페에서 함께 있는 사진이 커뮤니티에 퍼졌습니다.`,
-        memberName: riskyMember.name,
-        choices: [
-          { text: "친한 동료 사이라고 선을 긋는다", effect: { reputation: -10, money: 0, fanCount: -5000 }, resultMessage: "믿는 팬들도 있지만 의심하는 여론이 남았습니다. (Mock)" },
-          { text: "쿨하게 인정한다", effect: { reputation: -5, money: 0, fanCount: -15000 }, resultMessage: "일부 코어 팬덤이 이탈했지만 대중의 지지를 얻었습니다. (Mock)" },
-          { text: "증거 수집 및 고소 공지", effect: { reputation: -15, money: -2000000, fanCount: -2000 }, resultMessage: "강경 대응에 팬들이 당황했지만 논란 확산은 막았습니다. (Mock)" }
-        ]
-      }
-    ];
+      };
+    }
 
-    const randomEvent = mockEvents[Math.floor(Math.random() * mockEvents.length)];
-    return NextResponse.json(randomEvent)
+    return NextResponse.json(resultData)
   } catch (err: unknown) {
+    console.error("[event] Error:", err);
     if (err instanceof Error) {
       return NextResponse.json({ error: err.message }, { status: 500 })
     }

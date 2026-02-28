@@ -41,3 +41,11 @@ yarn-error.log*
 next-env.d.ts
 
 *.md
+
+# local test scripts & logs (one-off experiments)
+test-*.ts
+test-*.log
+*.log
+ai_studio_models.json
+casting_test*.json
+list-models.log

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = "force-dynamic";
 import { generateIdolImage } from '@/lib/imagen'
 import { analyzeCandidate } from '@/lib/gemini'
+import { generateUUID } from '@/lib/utils/uuid'
 
 function generateKoreanName(gender: 'male' | 'female'): string {
     const lastNames = ['김', '이', '박', '최', '정', '강', '조', '윤', '장', '임']
@@ -24,7 +25,13 @@ export async function POST(req: NextRequest) {
                 const gender = Math.random() > 0.5 ? 'female' : 'male'
                 const age = Math.floor(Math.random() * 8) + 16 // 16-23세
 
-                const imageUrl = await generateIdolImage({ gender, age })
+                let imageUrl = '';
+                try {
+                    imageUrl = await generateIdolImage({ gender, age });
+                } catch (e) {
+                    console.error('[Casting] Image generation failed:', e);
+                    imageUrl = `https://api.dicebear.com/9.x/avataaars/svg?seed=${gender}-${age}-${Math.random()}`; // Fallback to mock image
+                }
 
                 const stats = {
                     dance: Math.floor(Math.random() * 40) + 60,
@@ -40,13 +47,19 @@ export async function POST(req: NextRequest) {
                     conflict: Math.floor(Math.random() * 40),
                 }
 
-                const analysis = await analyzeCandidate({ gender, age, stats, risk })
+                let analysis = '';
+                try {
+                    analysis = await analyzeCandidate({ gender, age, stats, risk });
+                } catch (e) {
+                    console.error('[Casting] Candidate analysis failed:', e);
+                    analysis = '기획사 평가 준비 중입니다.'; // Fallback
+                }
 
                 return {
-                    id: crypto.randomUUID(),
+                    id: generateUUID(),
                     name: generateKoreanName(gender),
                     age,
-                    gender, // API Response payload 에 gender를 포함
+                    gender,
                     imageUrl,
                     stats,
                     risk,
@@ -58,6 +71,7 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ candidates })
     } catch (err: unknown) {
+        console.error('[Casting] Critical Error:', err);
         if (err instanceof Error) {
             return NextResponse.json({ error: err.message }, { status: 500 })
         }

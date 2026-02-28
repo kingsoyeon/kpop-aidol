@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { GameState, JudgeResult, GAME_CONSTANTS, ChartRank } from '@/types/game'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/lib/i18n'
+import { generateUUID } from '@/lib/utils/uuid'
 
 interface Props {
     gameState: GameState
@@ -75,10 +76,11 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
             const text = pool[Math.floor(Math.random() * pool.length)]
             const username = USERNAMES[Math.floor(Math.random() * USERNAMES.length)]
             const newChat: ChatMessage = {
-                id: crypto.randomUUID(),
-                username: USERNAMES[Math.floor(Math.random() * USERNAMES.length)],
-                text: pool[Math.floor(Math.random() * pool.length)],
+                id: generateUUID(),
+                username,
+                text,
                 isHighlight: isSuperChat,
+
             }
             // 채팅 최대 6개 유지 (PRD §UI 가이드라인)
             setChats(prev => {
@@ -102,7 +104,7 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
 
     const spawnHearts = useCallback((count: number, delayInterval: number = 0, emoji: string = '❤️') => {
         const newHearts = Array.from({ length: count }).map((_, i) => ({
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             delay: i * delayInterval,
             right: 16 + Math.random() * 24,
             emoji
