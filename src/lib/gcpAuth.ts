@@ -11,6 +11,10 @@ export async function getAccessToken(): Promise<string> {
             let credentials: any;
             try {
                 credentials = JSON.parse(serviceAccountJson);
+                // Vercel env vars may double-escape newlines. Ensure they are actual newlines.
+                if (credentials.private_key) {
+                    credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
+                }
             } catch {
                 throw new Error('GCP_SERVICE_ACCOUNT_JSON is not valid JSON.');
             }

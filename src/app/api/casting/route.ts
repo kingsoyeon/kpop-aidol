@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 import { generateIdolImage } from '@/lib/imagen'
 import { analyzeCandidate } from '@/lib/gemini'
 import { generateUUID } from '@/lib/utils/uuid'
