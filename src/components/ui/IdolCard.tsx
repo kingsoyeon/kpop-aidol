@@ -48,7 +48,7 @@ export default function IdolCard({ idol, isSelected, onToggle, locale }: Props) 
             {/* 정보 및 스탯 영역 */}
             <div className="p-2 pb-0 flex flex-col flex-1">
                 <div className="flex justify-between items-center mb-1.5 border-b border-slate-100 pb-1">
-                    <h3 className="polaroid-card__name !mt-0 !text-left">{idol.name}</h3>
+                    <h3 className="polaroid-card__name !mt-0 !text-left">{locale === 'en' && idol.enName ? idol.enName : idol.name}</h3>
                     <span className="text-[0.6rem] text-slate-400 font-bold">{locale === 'en' ? `${idol.age} yrs` : `${idol.age}세`} • {idol.gender === 'male' ? translate('casting.card.male', locale) : translate('casting.card.female', locale)}</span>
                 </div>
 
@@ -95,7 +95,7 @@ export default function IdolCard({ idol, isSelected, onToggle, locale }: Props) 
                         </span>
                     </div>
                     <p className="text-[0.58rem] text-slate-500 font-medium italic border-t border-slate-50 pt-1 px-0.5 leading-[1.2] break-keep">
-                        "{locale === 'en' ? idol.geminiAnalysis.replace('균형 잡힌 기본기를 갖췄습니다.', 'Has well-balanced fundamentals.') : idol.geminiAnalysis}"
+                        "{locale === 'en' ? idol.enGeminiAnalysis || idol.geminiAnalysis : idol.geminiAnalysis}"
                     </p>
                 </div>
             </div>

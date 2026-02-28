@@ -1,6 +1,7 @@
 export interface Idol {
     id: string
     name: string
+    enName?: string
     age: number
     gender: 'male' | 'female'
     imageUrl: string          // Imagen 4 생성 이미지
@@ -17,6 +18,7 @@ export interface Idol {
         conflict: number        // 분쟁 확률 0-100
     }
     geminiAnalysis: string    // Gemini 분석 코멘트
+    enGeminiAnalysis?: string
     isActive: boolean
 }
 

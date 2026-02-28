@@ -13,16 +13,19 @@ interface Props {
 /** PRD §4.2: 캐스팅 fallback — Imagen 실패 시 이니셜 아바타로 대체 */
 function buildFallbackCandidates(): Idol[] {
     const names = ['김민준', '이서연', '박도윤', '최하은']
+    const enNames = ['Minjun Kim', 'Seoyeon Lee', 'Doyun Park', 'Haeun Choi']
     const genders: ('male' | 'female')[] = ['male', 'female', 'male', 'female']
     return names.map((name, i) => ({
         id: `fallback-${i}`,
-        name,
+        name: name,
+        enName: enNames[i],
         age: 18 + i,
         gender: genders[i],
         imageUrl: `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(name)}`,
         stats: { dance: 70, vocal: 70, visual: 70, potential: 50, charisma: 70 },
         risk: { scandal: 20, romance: 15, conflict: 10 },
         geminiAnalysis: '균형 잡힌 기본기를 갖췄습니다.',
+        enGeminiAnalysis: 'Has well-balanced fundamentals.',
         isActive: true,
     }))
 }
