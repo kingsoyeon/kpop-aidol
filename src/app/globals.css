@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -115,8 +116,8 @@
   --badge-online: #34C759;
   /* 온라인 도트 (Phoning 기준) */
 
-  /* Fonts */
-  --font-sans-full: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  /* Fonts — Nunito: 귀엽고 깔끔, 한/영 모두 대응, 모바일 안전 */
+  --font-sans-full: 'Nunito', 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
   --font-display-full: 'NeoDunggeunmo', 'Black Han Sans', monospace;
 }
 
@@ -196,6 +197,70 @@
     text-align: center;
     margin-top: 10px;
     letter-spacing: 0.03em;
+  }
+
+  /* F. AI Staff 브리핑 카드 (Phoning 메시지 스타일) */
+  .staff-message-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .staff-message-card:active {
+    background: rgba(74, 159, 224, 0.08);
+  }
+
+  .staff-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .staff-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+  }
+
+  .staff-time {
+    font-size: 0.65rem;
+    color: var(--text-meta);
+  }
+
+  .staff-preview {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .online-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background: var(--badge-online);
+    border: 2px solid white;
+    border-radius: 50%;
+  }
+
+  .unread-badge {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    background: var(--badge-unread);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    animation: badgePop 0.3s ease;
   }
 
   /* 2.3.C. LIVE 배지 + 시청자 카운터 — Weverse/VLIVE 직접 참조 */
