@@ -147,11 +147,41 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                 </div>
             </div>
 
-            <div className="mb-4">
-                <h1 className="text-2xl font-bold font-display text-[#4A9FE0]">음악 방송 출격</h1>
-                <p className="text-xs text-slate-500 mt-1">
-                    [{gameState.currentTrack?.title || '현재 음원'}] 무대 시작!
+            <div className="mb-4 animate-[countPulse_2s_infinite]">
+                <h1 className="text-2xl font-bold font-display text-[#4A9FE0] flex items-center gap-2">
+                    <span className="live-dot bg-[#FF3B30] w-2 h-2" />
+                    음악 방송 출격
+                </h1>
+                <p className="text-xs text-slate-500 mt-1 font-medium">
+                    무대 위에서 가장 빛나는 순간
                 </p>
+            </div>
+
+            {/* 트랙 및 그룹 정보 */}
+            <div className="flex gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex-shrink-0 glass-card p-3 min-w-[140px]">
+                    <p className="text-[0.65rem] font-bold text-slate-400 mb-1">CURRENT TRACK</p>
+                    <h2 className="text-sm font-bold text-slate-800 truncate">{gameState.currentTrack?.title}</h2>
+                    <div className="flex gap-1 mt-1">
+                        <span className="text-[0.6rem] bg-[#4A9FE0]/10 text-[#4A9FE0] px-1.5 py-0.5 rounded-full font-bold">
+                            #{gameState.currentTrack?.concept}
+                        </span>
+                        <span className="text-[0.6rem] bg-[#FF6EB4]/10 text-[#FF6EB4] px-1.5 py-0.5 rounded-full font-bold">
+                            #{gameState.currentTrack?.targetMarket}
+                        </span>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    {gameState.currentGroup.map((member, i) => (
+                        <div key={member.name} className="flex flex-col items-center gap-1 animate-in slide-in-from-left" style={{ animationDelay: `${i * 100}ms` }}>
+                            <div className="w-10 h-10 rounded-full border-2 border-white shadow-sm overflow-hidden bg-slate-200">
+                                <img src={member.imageUrl} alt={member.name} className="w-full h-full object-cover" />
+                            </div>
+                            <span className="text-[0.6rem] font-bold text-slate-500">{member.name}</span>
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {/* 무대 영역 */}
@@ -214,7 +244,15 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                 )}
 
                 <div className="space-y-4 relative z-0">
-                    <h3 className="font-bold text-slate-700">심사위원 점수</h3>
+                    <div className="flex justify-between items-end">
+                        <h3 className="font-bold text-slate-700">심사위원 점수</h3>
+                        {judgeData && (
+                            <div className="text-right">
+                                <p className="text-[0.6rem] font-bold text-slate-400 uppercase tracking-tighter">Win Probability</p>
+                                <p className="text-xl font-bold text-[#FF6EB4] stat-number leading-none">{judgeData.chartProbability}%</p>
+                            </div>
+                        )}
+                    </div>
                     <div className="space-y-3 text-[0.75rem] font-bold text-slate-600">
                         {[
                             { k: 'composition', l: '구성력', c: '#4ECDC4' },
@@ -236,8 +274,14 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                         ))}
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-slate-100">
-                        <p className="text-sm text-slate-700 italic font-medium">"{judgeData?.comment || '...'}"</p>
+                    <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-start gap-4">
+                        <p className="text-sm text-slate-700 italic font-medium flex-1">"{judgeData?.comment || '...'}"</p>
+                        {judgeData && (
+                            <div className="text-center px-3 py-1 bg-slate-50 rounded-lg border border-slate-100">
+                                <p className="text-[0.6rem] font-bold text-slate-400">TOTAL</p>
+                                <p className="text-lg font-bold text-[#4A9FE0] stat-number leading-none">{judgeData.totalScore}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
