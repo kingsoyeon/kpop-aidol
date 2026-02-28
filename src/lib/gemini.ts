@@ -1,11 +1,19 @@
 import { GoogleGenAI } from '@google/genai';
 
-const client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+let client: any = null;
+
+function getClient() {
+    if (!client) {
+        client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || 'dummy_key' });
+    }
+    return client;
+}
 
 export async function generateText(prompt: string): Promise<string> {
     if (process.env.NEXT_PUBLIC_FORCE_MOCK === 'true') return `[Mock] ${prompt.substring(0, 20)}...`;
 
-    const response = await client.models.generateContent({
+    const geminiClient = getClient();
+    const response = await geminiClient.models.generateContent({
         model: 'gemini-3.1-pro-preview',
         contents: prompt,
     });
