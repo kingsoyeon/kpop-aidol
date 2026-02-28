@@ -18,9 +18,14 @@ interface HeartData {
     id: string
     delay: number
     right: number
+    emoji: string
 }
 
-const CHAT_POOL = [
+const PRE_CHAT_POOL = [
+    "언제 시작해 ㅠㅠ", "빨리 무대 보고싶당!!", "대기 타는 중!!", "이번 컨셉 대박일듯",
+    "두근두근...", "빨리 나와라 얍", "완전 기대된다 ㅠㅠ", "오픈콜 대기중"
+]
+const LIVE_CHAT_POOL = [
     "대박이다!!!!!", "오 노래 좋은데?", "진짜 최고다 ㅠㅠㅠ", "우리 애들 미모 무슨 일...",
     "하트 뿅뿅 ❤️", "이번 컨셉 찰떡이네", "이거 1위 각이다", "퍼포먼스 미쳤다...",
     "와 라이브 찢었네", "빨리 무대 보고싶당", "이번 음원 대박날듯!!!", "사랑해 💖",
@@ -38,13 +43,12 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
     const [judgeData, setJudgeData] = useState<any>(null)
     const [hearts, setHearts] = useState<HeartData[]>([])
 
-    // 1. 팬 채팅 애니메이션용 useEffect (심사 중이거나 이미 심사 데이터가 있을 때 활성화)
+    // 1. 팬 채팅 애니메이션용 useEffect
     useEffect(() => {
-        if (!isJudging && !judgeData) return
-
         const chatInterval = setInterval(() => {
             const isSuperChat = Math.random() < 0.1
-            const text = CHAT_POOL[Math.floor(Math.random() * CHAT_POOL.length)]
+            const pool = (isJudging || judgeData) ? LIVE_CHAT_POOL : PRE_CHAT_POOL
+            const text = pool[Math.floor(Math.random() * pool.length)]
             const username = USERNAMES[Math.floor(Math.random() * USERNAMES.length)]
 
             const newChat: ChatMessage = {
@@ -62,27 +66,29 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
             setViewerCount(p => p + Math.floor(Math.random() * 100))
             setChatCount(p => p + 1)
 
-            // 하트 파티클 트리거 (0.4~0.8초 간격 랜덤 트리거는 CSS/Interval 조합으로 구현)
-            if (Math.random() < 0.4) {
-                spawnHearts(1)
+            // 평소에는 회색 하트가 무작위로 1~2개씩 시간차를 두고 자연스럽게 떠오름
+            if (Math.random() < 0.8) {
+                const heartCount = Math.random() < 0.5 ? 1 : 2
+                spawnHearts(heartCount, 400, '🤍')
             }
         }, 800)
 
         return () => clearInterval(chatInterval)
     }, [isJudging, !!judgeData])
 
-    const spawnHearts = useCallback((count: number) => {
-        const newHearts = Array.from({ length: count }).map(() => ({
+    const spawnHearts = useCallback((count: number, delayInterval: number = 0, emoji: string = '❤️') => {
+        const newHearts = Array.from({ length: count }).map((_, i) => ({
             id: crypto.randomUUID(),
-            delay: Math.random() * 200,
-            right: 16 + Math.random() * 24
+            delay: i * delayInterval,
+            right: 16 + Math.random() * 24,
+            emoji
         }))
         setHearts(prev => [...prev, ...newHearts])
 
-        // 2초 후 제거 (애니메이션 종료 시점)
+        // 2초 후 제거 (애니메이션 종료 시점 예상)
         setTimeout(() => {
             setHearts(prev => prev.filter(h => !newHearts.find(nh => nh.id === h.id)))
-        }, 2000)
+        }, 2000 + count * delayInterval)
     }, [])
 
     // 2. 심사 API 호출 (User action triggered)
@@ -103,9 +109,9 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
             const data = await res.json()
             setJudgeData(data)
 
-            // 1위 시 하트 파티클 대량 발사
+            // 1위 시 하트 파티클 10~15개 대량 발사 (50ms 간격)
             if (data.result === '1위') {
-                spawnHearts(15)
+                spawnHearts(Math.floor(Math.random() * 6) + 10, 50)
             }
         } catch (err) {
             console.error(err)
@@ -184,43 +190,71 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                 </div>
             </div>
 
-            {/* 무대 영역 */}
-            <div className="relative w-full aspect-video bg-gradient-to-br from-slate-800 to-black rounded-xl overflow-hidden shadow-lg border-2 border-slate-700/50 mb-6 flex items-center justify-center">
-                {isJudging ? (
-                    <div className="text-[#FF6EB4] font-bold text-xl animate-pulse tracking-widest font-display">
-                        PERFORMING...
-                    </div>
-                ) : judgeData ? (
-                    <div className="text-[#4ECDC4] font-bold text-xl animate-in zoom-in font-display">
-                        STAGE CLEAR!
-                    </div>
-                ) : (
-                    <div className="text-white/50 font-bold font-display">대기중...</div>
-                )}
+            {/* 무대 영역 (세로 확장 & 하단 채팅 입력탭/하트 탭 추가) */}
+            <div className="relative w-full aspect-[3/4] sm:aspect-[4/5] min-h-[420px] bg-gradient-to-br from-slate-800 to-black rounded-xl overflow-hidden shadow-lg border-2 border-slate-700/50 mb-6 flex flex-col">
 
-                {/* 2.3.D. 채팅 오버레이 */}
-                <div className="chat-container">
-                    {chats.map(chat => (
-                        <div key={chat.id} className={`chat-bubble ${chat.isHighlight ? 'chat-bubble--highlight' : ''}`}>
-                            <span className="chat-bubble__username">{chat.username}</span>
-                            <span className="text-slate-800">{chat.text}</span>
+                {/* 메인 뷰어 */}
+                <div
+                    className="flex-1 relative flex items-center justify-center cursor-pointer overflow-hidden"
+                    onClick={() => spawnHearts(Math.floor(Math.random() * 3) + 3, 0, '❤️')} // 무대영역 탭 시 핑크 하트
+                >
+                    {/* 심사 중 조명 효과 오버레이 */}
+                    {isJudging && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-white/30 via-transparent to-transparent animate-pulse pointer-events-none z-0" style={{ animationDuration: '1.5s' }} />
+                    )}
+
+                    {isJudging ? (
+                        <div className="text-[#FF6EB4] font-bold text-xl animate-pulse tracking-widest font-display">
+                            PERFORMING...
+                        </div>
+                    ) : judgeData ? (
+                        <div className="text-[#4ECDC4] font-bold text-xl animate-in zoom-in font-display">
+                            STAGE CLEAR!
+                        </div>
+                    ) : (
+                        <div className="text-white/50 font-bold font-display">대기중...</div>
+                    )}
+
+                    {/* 2.3.D. 채팅 오버레이 */}
+                    <div className="chat-container !bottom-2">
+                        {chats.map(chat => (
+                            <div key={chat.id} className={`chat-bubble ${chat.isHighlight ? 'chat-bubble--highlight' : ''}`}>
+                                <span className="chat-bubble__username">{chat.username}</span>
+                                <span className="text-slate-800">{chat.text}</span>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* 2.3.E. 하트 파티클 */}
+                    {hearts.map(heart => (
+                        <div
+                            key={heart.id}
+                            className="heart-float"
+                            style={{
+                                animationDelay: `${heart.delay}ms`,
+                                right: `${heart.right}px`
+                            }}
+                        >
+                            {heart.emoji}
                         </div>
                     ))}
                 </div>
 
-                {/* 2.3.E. 하트 파티클 */}
-                {hearts.map(heart => (
-                    <div
-                        key={heart.id}
-                        className="heart-float"
-                        style={{
-                            animationDelay: `${heart.delay}ms`,
-                            right: `${heart.right}px`
-                        }}
-                    >
-                        ❤️
+                {/* 하단 입력 탭 & 하트 탭 버튼 */}
+                <div className="h-14 bg-black/40 border-t border-white/10 flex items-center px-4 gap-3 shrink-0 relative z-20">
+                    <div className="flex-1 bg-white/10 rounded-full h-9 flex items-center px-4 border border-white/5">
+                        <span className="text-white/40 text-[0.7rem] font-bold font-sans">실시간 채팅을 입력해보세요...</span>
                     </div>
-                ))}
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            spawnHearts(1, 0, '❤️')
+                        }}
+                        className="w-10 h-10 rounded-full bg-[#FF6EB4] flex items-center justify-center shadow-[0_0_12px_rgba(255,110,180,0.5)] active:scale-90 transition-transform flex-shrink-0 border border-white/20"
+                    >
+                        <span className="text-lg leading-none translate-y-[1px]">❤️</span>
+                    </button>
+                </div>
             </div>
 
             {/* 심사 시작 컨테이너 */}

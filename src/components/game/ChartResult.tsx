@@ -7,12 +7,12 @@ interface Props {
     updateState: (updates: Partial<GameState>) => void
 }
 
-const BADGE_MAP: Record<string, { icon: string, color: string, label: string, glow: string }> = {
-    '1위': { icon: '🏆', color: '#FFD93D', label: 'No.1', glow: 'rgba(255,215,0,0.4)' },
-    '상위권': { icon: '🌟', color: '#C084FC', label: 'Rising', glow: 'rgba(192,132,252,0.3)' },
-    '중위권': { icon: '📀', color: '#60A5FA', label: 'Steady', glow: 'none' },
-    '하위권': { icon: '📉', color: '#94A3B8', label: 'Needs Work', glow: 'none' },
-    '나락': { icon: '💀', color: '#EF4444', label: 'Flop', glow: 'rgba(239,68,68,0.3)' },
+const BADGE_MAP: Record<string, { icon: string, color: string, label: string, glow: string, bg: string }> = {
+    '1위': { icon: '🏆', color: '#FFD93D', label: '이번 주 1위!', glow: 'rgba(255,215,0,0.4)', bg: 'bg-[#FFD93D]/10' },
+    '상위권': { icon: '🌟', color: '#10B981', label: '상위권 진입!', glow: 'rgba(16,185,129,0.3)', bg: 'bg-[#10B981]/10' },
+    '중위권': { icon: '📀', color: '#64748B', label: '중위권 기록', glow: 'none', bg: 'bg-slate-100' },
+    '하위권': { icon: '📉', color: '#F59E0B', label: '아쉬운 성적...', glow: 'none', bg: 'bg-[#F59E0B]/10' },
+    '나락': { icon: '💀', color: '#EF4444', label: '나락...', glow: 'rgba(239,68,68,0.3)', bg: 'bg-[#EF4444]/15' },
 }
 
 export default function ChartResult({ gameState, updateState }: Props) {
@@ -75,6 +75,14 @@ export default function ChartResult({ gameState, updateState }: Props) {
     const resultKey = judgeData?.result || '중위권'
     const rInfo = BADGE_MAP[resultKey] || BADGE_MAP['중위권']
 
+    // 수익/손실 데이터 계산
+    let incMoney = 0, incRep = 0, incFan = 0
+    if (resultKey === '1위') { incMoney = 20000000; incFan = 100000; incRep = 15 }
+    else if (resultKey === '상위권') { incMoney = 8000000; incFan = 30000; incRep = 8 }
+    else if (resultKey === '중위권') { incMoney = 2000000; incFan = 5000; incRep = 2 }
+    else if (resultKey === '하위권') { incMoney = -1000000; incFan = -2000; incRep = -5 }
+    else if (resultKey === '나락') { incMoney = -5000000; incFan = -10000; incRep = -15 }
+
     if (!showResult) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[70vh]">
@@ -94,17 +102,42 @@ export default function ChartResult({ gameState, updateState }: Props) {
                 <div key={i} className="heart-float" style={{ animationDelay: `${Math.random() * 500}ms`, left: `${10 + Math.random() * 80}%` }}>🏆</div>
             ))}
 
-            <div className="text-center mb-10 w-full animate-in zoom-in duration-700">
+            <div className={`text-center mb-10 w-full animate-in zoom-in duration-700 p-8 rounded-3xl ${rInfo.bg} border-2 border-white/50 shadow-sm relative overflow-hidden`}>
+                {/* 배경 장식 (나락일 때만 살짝 흔들림 힌트) */}
+                {resultKey === '나락' && <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none"></div>}
+
                 <div
-                    className="w-32 h-32 mx-auto rounded-full bg-white flex items-center justify-center text-6xl mb-4"
+                    className="w-32 h-32 mx-auto rounded-full bg-white flex items-center justify-center text-6xl mb-4 relative z-10"
                     style={{ boxShadow: rInfo.glow !== 'none' ? `0 0 40px ${rInfo.glow}` : '0 10px 30px rgba(0,0,0,0.1)' }}
                 >
                     {rInfo.icon}
                 </div>
-                <h1 className="text-4xl font-bold font-display mt-4 mb-2" style={{ color: rInfo.color }}>
+                <h1 className="text-4xl font-bold font-display mt-4 mb-2 relative z-10" style={{ color: rInfo.color }}>
                     {resultKey}
                 </h1>
-                <p className="text-slate-600 font-bold">{rInfo.label}</p>
+                <p className="text-slate-600 font-bold mb-8 relative z-10">{rInfo.label}</p>
+
+                {/* 수익/손실 및 지표 변화 */}
+                <div className="grid grid-cols-3 gap-4 mt-4 relative z-10">
+                    <div className="glass-card p-3 flex flex-col items-center">
+                        <span className="text-[0.65rem] font-bold text-slate-400 mb-1">수익/손실</span>
+                        <span className={`text-sm font-bold stat-number ${incMoney >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+                            {incMoney >= 0 ? '+' : ''}{(incMoney / 10000).toLocaleString()}만
+                        </span>
+                    </div>
+                    <div className="glass-card p-3 flex flex-col items-center">
+                        <span className="text-[0.65rem] font-bold text-slate-400 mb-1">팬덤 변화</span>
+                        <span className={`text-sm font-bold stat-number ${incFan >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+                            {incFan >= 0 ? '+' : ''}{incFan.toLocaleString()}
+                        </span>
+                    </div>
+                    <div className="glass-card p-3 flex flex-col items-center">
+                        <span className="text-[0.65rem] font-bold text-slate-400 mb-1">평판 변화</span>
+                        <span className={`text-sm font-bold stat-number ${incRep >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
+                            {incRep >= 0 ? '+' : ''}{incRep}
+                        </span>
+                    </div>
+                </div>
             </div>
 
             {/* 컬렉션 배지 스트립 (Weverse 스타일) */}

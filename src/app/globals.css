@@ -265,12 +265,12 @@
 
   /* 2.3.E. 하트 파티클 — Weverse/VLIVE 직접 참조 */
   .heart-float {
-    position: fixed;
-    bottom: 80px;
+    position: absolute;
+    bottom: -10px;
     font-size: 1.4rem;
     animation: floatUp 1.6s ease-out forwards;
     pointer-events: none;
-    z-index: 100;
+    z-index: 10;
   }
 
   /* 2.3.F. Phoning 메시지 스타일 AI Staff 카드 */

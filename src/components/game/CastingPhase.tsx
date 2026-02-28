@@ -66,10 +66,10 @@ export default function CastingPhase({ gameState, updateState }: Props) {
         <div className="flex flex-col w-full h-full pb-20 animate-in fade-in duration-500">
             <div className="mb-6 mt-4">
                 <h1 className="text-2xl font-bold font-display text-[#4A9FE0] drop-shadow-sm">
-                    연습생 캐스팅
+                    새로운 연습생을 발굴하세요
                 </h1>
                 <p className="text-xs text-slate-500 mt-1">
-                    새로운 연습생을 발굴하세요. (최소 2명 ~ 최대 5명)
+                    프로필을 신중히 검토하여 최적의 그룹을 구성하세요. (최소 2명 ~ 최대 5명)
                 </p>
             </div>
 

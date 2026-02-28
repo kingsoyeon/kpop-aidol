@@ -220,12 +220,11 @@ export default function StudioPhase({ gameState, updateState }: Props) {
                         <button
                             key={m.id}
                             onClick={() => setMarket(m.id)}
-                            className={`glass-card p-3 flex justify-between items-center transition-all ${market === m.id ? 'border-[#4A9FE0] bg-[#e8f4fd] shadow-sm' : 'hover:bg-white/80'}`}
-                            style={{ borderColor: market === m.id ? 'var(--pop-blue)' : undefined }}
+                            className={`glass-card p-4 flex justify-between items-center transition-all ${market === m.id ? 'glass-card--selected scale-[1.02]' : 'hover:bg-white/80'}`}
                         >
-                            <div className="flex items-center gap-2">
-                                <span className="text-lg">{m.icon}</span>
-                                <span className={`text-sm font-bold ${market === m.id ? 'text-[#4A9FE0]' : 'text-slate-600'}`}>{m.label}</span>
+                            <div className="flex items-center gap-3">
+                                <span className="text-2xl">{m.icon}</span>
+                                <span className={`text-sm font-bold ${market === m.id ? 'text-[#FF6EB4]' : 'text-slate-600'}`}>{m.label}</span>
                             </div>
                             <span className="text-xs font-bold text-slate-400 stat-number">
                                 {m.cost === 0 ? '기본 (무료)' : `+ ${(m.cost / 10000).toLocaleString()}만원`}
