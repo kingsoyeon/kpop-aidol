@@ -251,20 +251,6 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                             </div>
                         ))}
                     </div>
-
-                    {/* 2.3.E. 하트 파티클 */}
-                    {hearts.map(heart => (
-                        <div
-                            key={heart.id}
-                            className="heart-float"
-                            style={{
-                                animationDelay: `${heart.delay}ms`,
-                                right: `${heart.right}px`
-                            }}
-                        >
-                            {heart.emoji}
-                        </div>
-                    ))}
                 </div>
 
                 {/* 하단 입력 탭 & 하트 탭 버튼 */}
@@ -282,6 +268,20 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                         <span className="text-lg leading-none translate-y-[1px]">❤️</span>
                     </button>
                 </div>
+
+                {/* 2.3.E. 하트 파티클 (무대 전체 영역을 기준으로 배치되어 버튼 위로 올라감) */}
+                {hearts.map(heart => (
+                    <div
+                        key={heart.id}
+                        className="heart-float"
+                        style={{
+                            animationDelay: `${heart.delay}ms`,
+                            right: `${heart.right}px`
+                        }}
+                    >
+                        {heart.emoji}
+                    </div>
+                ))}
             </div>
 
             {/* 심사 패널 */}
