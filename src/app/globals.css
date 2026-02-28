@@ -116,8 +116,8 @@
   --badge-online: #34C759;
   /* 온라인 도트 (Phoning 기준) */
 
-  /* Fonts — Nunito: 귀엽고 깔끔, 한/영 모두 대응, 모바일 안전 */
-  --font-sans-full: 'Nunito', 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+  /* Fonts — Jua: 귀엽고 깔끔, 한/영 모두 대응, 모바일 안전 */
+  --font-sans-full: 'Jua', 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
   --font-display-full: 'NeoDunggeunmo', 'Black Han Sans', monospace;
 }
 
