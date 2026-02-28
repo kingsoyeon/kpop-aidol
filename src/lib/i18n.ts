@@ -132,9 +132,9 @@ export const copyByLocale: Record<Locale, I18nDict> = {
     },
     en: {
         common: {
-            money: 'M',
+            money: '',
             krw: '₩',
-            moneyUnit: 'M',
+            moneyUnit: '',
             cost: 'Cost',
             confirm: 'Confirm',
             loading: 'Loading...',

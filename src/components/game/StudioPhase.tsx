@@ -237,7 +237,7 @@ export default function StudioPhase({ gameState, updateState }: Props) {
                                 <span className={`text-sm font-bold break-keep ${market === m.id ? 'text-[#FF6EB4]' : 'text-slate-600'}`}>{translate(`studio.${m.id}`, gameState.locale)}</span>
                             </div>
                             <span className="text-xs font-bold text-slate-400 stat-number whitespace-nowrap">
-                                {m.cost === 0 ? '' : `+ ${gameState.locale === 'en' ? '₩' : ''}${(m.cost / 10000).toLocaleString()}${translate('common.moneyUnit', gameState.locale)}`}
+                                {m.cost === 0 ? '' : `+ ${gameState.locale === 'en' ? '₩ ' : ''}${gameState.locale === 'ko' ? (m.cost / 10000).toLocaleString() : m.cost.toLocaleString()}${translate('common.moneyUnit', gameState.locale)}`}
                             </span>
                         </button>
                     ))}
@@ -251,7 +251,7 @@ export default function StudioPhase({ gameState, updateState }: Props) {
                         className="w-full h-14 bg-[#FF6EB4] hover:bg-[#ff4e9f] text-white text-lg font-bold rounded-xl shadow-[0_4px_14px_rgba(255,110,180,0.4)] transition-transform active:scale-95 neo-btn break-keep"
                         onClick={() => handleProduce(false)}
                     >
-                        {translate('studio.produceBtn', gameState.locale)} (<span className="stat-number">{gameState.locale === 'en' ? '₩' : ''}{(totalCost / 10000).toLocaleString()}</span>{translate('common.moneyUnit', gameState.locale)})
+                        {translate('studio.produceBtn', gameState.locale)} (<span className="stat-number">{gameState.locale === 'en' ? '₩ ' : ''}{gameState.locale === 'ko' ? (totalCost / 10000).toLocaleString() : totalCost.toLocaleString()}</span>{translate('common.moneyUnit', gameState.locale)})
                     </Button>
                 </div>
             </div>

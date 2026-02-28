@@ -146,7 +146,7 @@ export default function CastingPhase({ gameState, updateState }: Props) {
                             {translate('casting.selectedCount', gameState.locale)} <span className="text-[#FF6EB4] stat-number">{selectedIds.size}</span>{translate('casting.personUnit', gameState.locale)}
                         </span>
                         <span className={`text-sm font-bold stat-number ${!canAfford && selectedIds.size > 0 ? 'text-[#EF4444]' : 'text-slate-800'}`}>
-                            {gameState.locale === 'en' ? '₩' : ''}{(totalCost / 10000).toLocaleString()}{translate('common.moneyUnit', gameState.locale)}
+                            {gameState.locale === 'en' ? '₩' : ''}{gameState.locale === 'en' ? totalCost.toLocaleString() : (totalCost / 10000).toLocaleString()}{translate('common.moneyUnit', gameState.locale)}
                             {!canAfford && selectedIds.size > 0 ? ' ⚠️' : ''}
                         </span>
                     </div>
