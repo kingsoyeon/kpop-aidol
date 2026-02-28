@@ -21,6 +21,7 @@ const initialState: GameState = {
     currentTrack: null,
     phase: 'intro',
     turn: 1,
+    locale: 'ko',
     history: [],
     pendingEvent: null,
 }
@@ -42,16 +43,23 @@ export default function GameScreen() {
             <div className="deco-item" style={{ top: '80%', left: '7%', fontSize: '1.1rem', opacity: 0.5, '--r': '-5deg', '--delay': '1.5s' } as React.CSSProperties}>💖</div>
             <div className="deco-item" style={{ top: '90%', right: '10%', fontSize: '1.3rem', opacity: 0.6, '--r': '20deg', '--delay': '2.5s' } as React.CSSProperties}>🌟</div>
 
-            {/* 상단 HUD — intro/gameover 페이즈에서는 숨김 */}
-            {gameState.phase !== 'intro' && gameState.phase !== 'gameover' && (
-                <div className="sticky top-0 w-full bg-white/40 backdrop-blur-[16px] border-b border-white/50 p-4 z-50">
-                    <div className="flex justify-between items-center max-w-sm mx-auto text-[0.9375rem]">
-                        <span className="stat-number text-slate-800 font-bold">💰 {gameState.company.money.toLocaleString()}원</span>
-                        <span className="stat-number text-slate-800 font-bold">⭐ <span className="stat-number">{gameState.company.reputation}</span>점</span>
-                        <span className="stat-number text-slate-800 font-bold">👥 {gameState.company.fanCount.toLocaleString()}명</span>
+            {/* 상단 HUD — intro/gameover 페이즈에서는 로케일 토글만 표시 */}
+            <div className={`sticky top-0 w-full p-4 z-50 flex items-center ${gameState.phase === 'intro' || gameState.phase === 'gameover' ? 'justify-end' : 'justify-between bg-white/40 backdrop-blur-[16px] border-b border-white/50'}`}>
+                {gameState.phase !== 'intro' && gameState.phase !== 'gameover' && (
+                    <div className="flex justify-between items-center max-w-sm gap-2 w-full text-[0.9375rem] mr-auto">
+                        <span className="stat-number text-slate-800 font-bold">💰 {gameState.locale === 'en' ? '₩' : ''}{gameState.company.money.toLocaleString()}{gameState.locale === 'ko' ? '원' : ''}</span>
+                        <span className="stat-number text-slate-800 font-bold">⭐ <span className="stat-number">{gameState.company.reputation}</span>{gameState.locale === 'ko' ? '점' : ''}</span>
+                        <span className="stat-number text-slate-800 font-bold">👥 {gameState.company.fanCount.toLocaleString()}{gameState.locale === 'ko' ? '명' : ''}</span>
                     </div>
-                </div>
-            )}
+                )}
+
+                <button
+                    onClick={() => updateState({ locale: gameState.locale === 'ko' ? 'en' : 'ko' })}
+                    className="flex-shrink-0 bg-white/60 border border-slate-200 text-slate-600 px-3 py-1 rounded-full text-xs font-bold shadow-sm hover:bg-white transition-colors ml-auto"
+                >
+                    {gameState.locale.toUpperCase()}
+                </button>
+            </div>
 
             {/* 게임 페이즈 렌더링 */}
             <div className="pt-6 max-w-sm mx-auto px-4 relative z-10 w-full">

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { GameState, JudgeResult, GAME_CONSTANTS } from '@/types/game'
 import { Button } from '@/components/ui/button'
+import { translate } from '@/lib/i18n'
 
 interface Props {
     gameState: GameState
@@ -101,7 +102,7 @@ export default function ChartResult({ gameState, updateState }: Props) {
     if (!showResult) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[70vh]">
-                <h2 className="text-[#4A9FE0] font-bold mb-8 font-display">차트 결과 발표</h2>
+                <h2 className="text-[#4A9FE0] font-bold mb-8 font-display break-keep">{translate('chartResult.title', gameState.locale)}</h2>
                 <div key={countdown} className="text-8xl font-bold font-display text-[#FF6EB4] p-8" style={{ animation: 'countPulse 1s' }}>
                     {countdown || '!'}
                 </div>
@@ -143,23 +144,23 @@ export default function ChartResult({ gameState, updateState }: Props) {
 
             {/* 수익/손실 표시 — PRD §4.5 */}
             <div className="w-full glass-card p-4 mb-6 space-y-2">
-                <h3 className="text-xs font-bold text-slate-500 mb-3">이번 컴백 결과</h3>
+                <h3 className="text-xs font-bold text-slate-500 mb-3 break-keep">{translate('chartResult.resultLabel', gameState.locale)}</h3>
                 <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-600 font-bold">💰 자금 변화</span>
+                    <span className="text-slate-600 font-bold break-keep">💰 {translate('chartResult.revenue', gameState.locale)}</span>
                     <span className={`stat-number font-bold ${effect.money >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
-                        {effect.money >= 0 ? '+' : ''}{(effect.money / 10000).toLocaleString()}만원
+                        {effect.money >= 0 ? '+' : ''}{gameState.locale === 'en' ? '₩' : ''}{(effect.money / 10000).toLocaleString()}{translate('common.moneyUnit', gameState.locale)}
                     </span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-600 font-bold">⭐ 평판 변화</span>
+                    <span className="text-slate-600 font-bold break-keep">⭐ {translate('chartResult.repChange', gameState.locale)}</span>
                     <span className={`stat-number font-bold ${effect.reputation >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
-                        {effect.reputation >= 0 ? '+' : ''}{effect.reputation}점
+                        {effect.reputation >= 0 ? '+' : ''}{effect.reputation}{translate('musicshow.judge.total', gameState.locale) === 'TOTAL' ? '' : '점'}
                     </span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-600 font-bold">👥 팬덤 변화</span>
+                    <span className="text-slate-600 font-bold break-keep">👥 {translate('chartResult.fandomChange', gameState.locale)}</span>
                     <span className={`stat-number font-bold ${effect.fanCount >= 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
-                        {effect.fanCount >= 0 ? '+' : ''}{effect.fanCount.toLocaleString()}명
+                        {effect.fanCount >= 0 ? '+' : ''}{effect.fanCount.toLocaleString()}{translate('casting.personUnit', gameState.locale)}
                     </span>
                 </div>
                 {judgeData?.comment && (
@@ -197,7 +198,7 @@ export default function ChartResult({ gameState, updateState }: Props) {
                         className="w-full h-14 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white text-lg font-bold rounded-xl shadow-[0_4px_14px_rgba(74,159,224,0.4)] neo-btn"
                         onClick={handleNext}
                     >
-                        다음 컴백 준비
+                        {translate('chartResult.nextComebackBtn', gameState.locale)}
                     </Button>
                 </div>
             </div>

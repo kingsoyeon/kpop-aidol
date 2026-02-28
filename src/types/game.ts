@@ -81,6 +81,7 @@ export interface GameState {
     currentTrack: Track | null
     phase: GamePhase
     turn: number
+    locale: 'ko' | 'en'
     history: TurnResult[]
     pendingEvent: PendingEvent
 }
