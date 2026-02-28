@@ -8,12 +8,12 @@ interface Props {
     updateState: (updates: Partial<GameState>) => void
 }
 
-const BADGE_MAP: Record<string, { icon: string; color: string; label: string; glow: string; bg: string }> = {
-    '1위': { icon: '🏆', color: '#FFD93D', label: '이번 주 1위!', glow: 'rgba(255,215,0,0.4)', bg: 'bg-[#FFD93D]/10' },
-    '상위권': { icon: '🌟', color: '#10B981', label: '상위권 진입!', glow: 'rgba(16,185,129,0.3)', bg: 'bg-[#10B981]/10' },
-    '중위권': { icon: '📀', color: '#64748B', label: '중위권 기록', glow: 'none', bg: 'bg-slate-100' },
-    '하위권': { icon: '📉', color: '#F59E0B', label: '아쉬운 성적...', glow: 'none', bg: 'bg-[#F59E0B]/10' },
-    '나락': { icon: '💀', color: '#EF4444', label: '나락...', glow: 'rgba(239,68,68,0.3)', bg: 'bg-[#EF4444]/15' },
+const BADGE_MAP: Record<string, { icon: string; color: string; labelKey: string; glow: string; bg: string }> = {
+    '1위': { icon: '🏆', color: '#FFD93D', labelKey: 'chartResult.badge.first', glow: 'rgba(255,215,0,0.4)', bg: 'bg-[#FFD93D]/10' },
+    '상위권': { icon: '🌟', color: '#10B981', labelKey: 'chartResult.badge.top', glow: 'rgba(16,185,129,0.3)', bg: 'bg-[#C084FC]/10' },
+    '중위권': { icon: '📀', color: '#4A9FE0', labelKey: 'chartResult.badge.mid', glow: 'rgba(74,159,224,0.2)', bg: 'bg-[#4A9FE0]/10' },
+    '하위권': { icon: '📉', color: '#F59E0B', labelKey: 'chartResult.badge.low', glow: 'none', bg: 'bg-[#F59E0B]/10' },
+    '나락': { icon: '💀', color: '#EF4444', labelKey: 'chartResult.badge.fail', glow: 'rgba(239,68,68,0.3)', bg: 'bg-[#EF4444]/15' },
 }
 
 export default function ChartResult({ gameState, updateState }: Props) {
@@ -26,6 +26,15 @@ export default function ChartResult({ gameState, updateState }: Props) {
         Array.from({ length: 15 }, () => ({
             delay: Math.random() * 500,
             left: 10 + Math.random() * 80,
+            top: 5 + Math.random() * 40,
+        }))
+        , [])
+
+    // 상위권 별 파티클 (8개)
+    const starProps = useMemo(() =>
+        Array.from({ length: 8 }, () => ({
+            delay: Math.random() * 400,
+            left: 5 + Math.random() * 90,
         }))
         , [])
 
@@ -126,6 +135,17 @@ export default function ChartResult({ gameState, updateState }: Props) {
                 </div>
             ))}
 
+            {/* 상위권 별 파티클 */}
+            {resultKey === '상위권' && starProps.map((p, i) => (
+                <div
+                    key={i}
+                    className="heart-float"
+                    style={{ animationDelay: `${p.delay}ms`, left: `${p.left}%` }}
+                >
+                    🌟
+                </div>
+            ))}
+
             <div className={`text-center mb-10 w-full animate-in zoom-in duration-700 p-8 rounded-3xl ${rInfo.bg} border-2 border-white/50 shadow-sm relative overflow-hidden`}>
                 {/* 배경 장식 (나락일 때만 살짝 흔들림 힌트) */}
                 {resultKey === '나락' && <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none"></div>}
@@ -139,7 +159,7 @@ export default function ChartResult({ gameState, updateState }: Props) {
                 <h1 className="text-4xl font-bold font-display mt-4 mb-2 relative z-10" style={{ color: rInfo.color }}>
                     {resultKey}
                 </h1>
-                <p className="text-slate-600 font-bold mb-8 relative z-10">{rInfo.label}</p>
+                <p className="text-slate-600 font-bold mb-8 relative z-10">{translate(rInfo.labelKey, gameState.locale)}</p>
             </div>
 
             {/* 수익/손실 표시 — PRD §4.5 */}

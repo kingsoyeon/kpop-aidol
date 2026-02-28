@@ -200,12 +200,13 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                 </p>
             </div>
 
-            {/* 트랙 및 그룹 정보 */}
-            <div className="flex gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-                <div className="flex-shrink-0 glass-card p-3 min-w-[140px]">
+            {/* 트랙 및 그룹 정보 — 세로 스택으로 가로 스크롤 제거 */}
+            <div className="flex flex-col gap-2 mb-5">
+                {/* 트랙 카드 (풀 너비) */}
+                <div className="glass-card p-3 w-full">
                     <p className="text-[0.65rem] font-bold text-slate-400 mb-1">{translate('musicshow.track.currentTrack', gameState.locale)}</p>
-                    <h2 className="text-sm font-bold text-slate-800 truncate">{gameState.currentTrack?.title}</h2>
-                    <div className="flex gap-1 mt-1">
+                    <h2 className="text-sm font-bold text-slate-800 break-all leading-tight">{gameState.currentTrack?.title}</h2>
+                    <div className="flex gap-1 mt-1 flex-wrap">
                         <span className="text-[0.6rem] bg-[#4A9FE0]/10 text-[#4A9FE0] px-1.5 py-0.5 rounded-full font-bold">
                             #{gameState.currentTrack?.concept}
                         </span>
@@ -214,14 +215,14 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                         </span>
                     </div>
                 </div>
-
-                <div className="flex items-center gap-2">
+                {/* 멤버 아바타 행 — wrap으로 4명 전체 표시 */}
+                <div className="flex flex-wrap gap-3 px-1">
                     {gameState.currentGroup.map((member, i) => (
                         <div key={member.name} className="flex flex-col items-center gap-1 animate-in slide-in-from-left" style={{ animationDelay: `${i * 100}ms` }}>
                             <div className="w-10 h-10 rounded-full border-2 border-white shadow-sm overflow-hidden bg-slate-200">
                                 <img src={member.imageUrl} alt={member.name} className="w-full h-full object-cover" />
                             </div>
-                            <span className="text-[0.6rem] font-bold text-slate-500">{member.name}</span>
+                            <span className="text-[0.6rem] font-bold text-slate-500 max-w-[44px] text-center truncate">{member.name}</span>
                         </div>
                     ))}
                 </div>

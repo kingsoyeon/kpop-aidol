@@ -109,6 +109,13 @@ export const copyByLocale: Record<Locale, I18nDict> = {
             repChange: '평판 변화',
             nextComebackBtn: '다음 컴백 준비',
             navigatingEvent: '이벤트 발생...',
+            badge: {
+                first: '이번 주 1위!',
+                top: '상위권 진입!',
+                mid: '중위권 기록',
+                low: '아쉬운 성적...',
+                fail: '나락...',
+            }
         },
         event: {
             title: '긴급 이벤트 발생',
@@ -234,6 +241,13 @@ export const copyByLocale: Record<Locale, I18nDict> = {
             repChange: 'Reputation Change',
             nextComebackBtn: 'Prepare Next Comeback',
             navigatingEvent: 'Event occurring...',
+            badge: {
+                first: 'No.1 This Week!',
+                top: 'Top Charts!',
+                mid: 'Mid Chart',
+                low: 'Disappointing...',
+                fail: 'Canceled...',
+            }
         },
         event: {
             title: 'Emergency Event Occurred',
