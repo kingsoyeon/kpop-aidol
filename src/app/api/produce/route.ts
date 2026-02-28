@@ -12,50 +12,62 @@ export async function POST(req: NextRequest) {
     try {
         const { concept, targetMarket, members, groupName } = await req.json()
 
-        // [MOCK] 진짜 Gemini Lyrics API 호출 대신 고정된 가사를 사용합니다.
-        // 나중에 진짜 API 연동 시 아래 lyricsText 생성 로직을 활성화하세요.
-        const mockLyrics = `[Verse 1]
-꿈을 향해 달려가 우린 멈출 수 없어
-너와 나 함께라면 어디든 갈 수 있어
-반짝이는 저 별처럼 우린 빛날 테니까
-지금 이 순간을 영원히 기억해줘
+        let fullLyrics = '';
+        let hook = '';
 
-[Chorus]
-Yeah we're gonna fly higher (Higher!)
-뜨겁게 타오르는 불꽃처럼 (Burning!)
-심장이 터질 듯한 이 기분
-포기하지 마 다시 한 번 외쳐봐
+        if (process.env.NEXT_PUBLIC_FORCE_MOCK === 'true') {
+            fullLyrics = `[Verse 1]\n꿈을 향해 달려가 우린 멈출 수 없어\n...\n[Chorus]\nYeah we're gonna fly higher (Higher!)\n...`;
+            hook = "Yeah we're gonna fly higher (Higher!)";
+        } else {
+            const prompt = `
+K-pop 그룹 ${groupName}의 신곡 가사를 한국어로 작성해줘.
 
-[Verse 2]
-힘들었던 기억들은 모두 잊어버려
-새로운 내일이 우릴 기다리니까
-두 손을 꼭 잡고서 함께 걸어가자
-우리의 노래가 온 세상에 울려 퍼지게
+컨셉: ${concept}
+타겟: ${targetMarket}
+멤버 수: ${members.length}명
 
-[Bridge]
-어둠 속에서도 빛을 잃지 마
-우린 할 수 있어 믿음을 가져봐
-다시 시작해 우리만의 Stage
+요구사항:
+- [Verse 1], [Chorus], [Verse 2], [Bridge], [Chorus] 구조 필수
+- 후크(Chorus)는 반복하기 쉽고 기억에 남는 라인
+- 각 섹션은 4-6줄
+- 자연스러운 한국어, 영어 단어 약간 믹스 가능
+- 백킹보컬 에코는 괄호로 표시: "Let's go (go)"
 
-[Chorus]
-Yeah we're gonna fly higher (Higher!)
-뜨겁게 타오르는 불꽃처럼 (Burning!)
-심장이 터질 듯한 이 기분
-포기하지 마 다시 한 번 외쳐봐`;
+가사만 출력, 설명 없이.
+            `.trim();
 
-        const hook = "Yeah we're gonna fly higher (Higher!)";
+            try {
+                fullLyrics = await generateText(prompt);
+                hook = extractHook(fullLyrics);
+            } catch (textErr) {
+                console.error('[produce] Lyrics Generation Failed:', textErr);
+                fullLyrics = `[Verse 1]\nAI 서버 이슈로 기본 가사 제공\n...\n[Chorus]\nFallback Hook!\n...`;
+                hook = "Fallback Hook!";
+            }
+        }
 
-        // [MOCK] 진짜 Lyria Audio 생성 대신 샘플 음원을 사용합니다. (lib/lyria.ts가 이미 mock 처리됨)
-        const audioUrl = await generateTrack({
-            concept,
-            targetMarket,
-            memberCount: members.length
-        })
+        let audioUrl = '';
+        let isFallback = false;
+
+        try {
+            audioUrl = await generateTrack({
+                concept,
+                targetMarket,
+                memberCount: members.length
+            });
+        } catch (audioErr) {
+            console.error('[produce] Lyria Generation Failed:', audioErr);
+            isFallback = true;
+            audioUrl = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA='; // Silent fallback
+        }
+
+        const baseTitle = `${groupName} - ${concept.charAt(0).toUpperCase() + concept.slice(1)} Pop`;
+        const finalTitle = isFallback ? `${baseTitle} (Silent Fallback)` : baseTitle;
 
         return NextResponse.json({
-            title: `${groupName} - ${concept.charAt(0).toUpperCase() + concept.slice(1)} Pop`,
+            title: finalTitle,
             lyrics: {
-                full: mockLyrics,
+                full: fullLyrics,
                 hook: hook
             },
             audioUrl

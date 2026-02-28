@@ -18,7 +18,44 @@ export async function generateTrack(data: {
     targetMarket: string
     memberCount: number
 }): Promise<string> {
-    // [MOCK] 진짜 Lyria API 대신 짧은 무음/샘플 성격의 base64 WAV를 반환합니다.
-    // 실제 연동 시 아래 endpoint와 fetch 로직을 활성화해야 합니다.
-    return 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+    if (process.env.NEXT_PUBLIC_FORCE_MOCK === 'true') {
+        return 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+    }
+
+    const projectId = process.env.GCP_PROJECT_ID;
+    if (!projectId) throw new Error('GCP_PROJECT_ID is not set in environment.');
+
+    const endpoint = `https://us-central1-aiplatform.googleapis.com/v1/projects/${projectId}/locations/us-central1/publishers/google/models/lyria-002:predict`;
+    const accessToken = await getAccessToken();
+
+    const lyriaPrompt = [
+        `K-pop ${data.concept} instrumental track.`,
+        `Mood: ${CONCEPT_MOOD[data.concept] ?? 'upbeat K-pop'}.`,
+        `Style: ${MARKET_COLOR[data.targetMarket] ?? 'K-pop style'}.`,
+        `${data.memberCount}-member group vocal texture, harmonized lead and backing layers.`,
+        `Radio-friendly, 30 seconds.`,
+        `Language: English only descriptors. No non-English words.`
+    ].join(' ');
+
+    const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            instances: [{ prompt: lyriaPrompt }],
+            parameters: { sampleCount: 1 }
+        }),
+        signal: AbortSignal.timeout(90000), // 90초 타임아웃 필수
+    });
+
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(`Lyria API 오류 ${response.status}: ${JSON.stringify(err)}`);
+    }
+
+    const result = await response.json();
+    const audioBase64 = result.predictions[0].bytesBase64Encoded;
+    return `data:audio/wav;base64,${audioBase64}`;
 }

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { GameState, ConceptType, MarketType, Track } from '@/types/game'
 import { Button } from '@/components/ui/button'
 import AudioPlayer from '@/components/ui/AudioPlayer'
 import { Loader2, Disc, Mic2, RefreshCw } from 'lucide-react'
+import { generateUUID } from '@/lib/utils/uuid'
 
 interface Props {
     gameState: GameState
@@ -30,6 +31,15 @@ export default function StudioPhase({ gameState, updateState }: Props) {
     const [loadingElapsed, setLoadingElapsed] = useState(0)
 
     const [producedTrack, setProducedTrack] = useState<Track | null>(null)
+
+    // 웨이브 바 높이/속도를 마운트 시 1회만 계산 (리렌더 시 깜빡임 방지)
+    // MEMORY.md §Known Issues: "Sound wave bars in StudioPhase might flicker due to Math.random()"
+    const waveBars = useMemo(() =>
+        Array.from({ length: 20 }, () => ({
+            height: Math.floor(Math.random() * 100),
+            duration: 0.5 + Math.random(),
+        }))
+        , [])
 
     // 4단계 로딩 콘솔 타이머
     useEffect(() => {
@@ -62,6 +72,7 @@ export default function StudioPhase({ gameState, updateState }: Props) {
 
         setIsProducing(true)
         setProducedTrack(null)
+        const startTime = Date.now()
 
         try {
             const res = await fetch('/api/produce', {
@@ -80,7 +91,7 @@ export default function StudioPhase({ gameState, updateState }: Props) {
             const data = await res.json()
 
             setProducedTrack({
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 title: data.title,
                 concept,
                 targetMarket: market,
@@ -89,6 +100,12 @@ export default function StudioPhase({ gameState, updateState }: Props) {
                 members: gameState.currentGroup,
                 producedAt: cost / 10000, // 만원 단위
             })
+
+            // 최소 8초간 로딩을 보여주기 위한 딜레이 (사용자 경험 보장)
+            const remainingTime = Math.max(0, 8000 - (Date.now() - startTime))
+            if (remainingTime > 0) {
+                await new Promise(r => setTimeout(r, remainingTime))
+            }
         } catch (err) {
             console.error(err)
             alert("음원 생성 중 오류가 발생했습니다.")
@@ -106,9 +123,9 @@ export default function StudioPhase({ gameState, updateState }: Props) {
     }
 
     const getLoadingStage = () => {
-        if (loadingElapsed < 8) return "가사 창작 중..."
-        if (loadingElapsed < 18) return "사운드 설계 중..."
-        if (loadingElapsed < 75) return "AI 음원 합성 중... (핵심 구간)"
+        if (loadingElapsed < 2) return "가사 창작 중..."
+        if (loadingElapsed < 4) return "사운드 설계 중..."
+        if (loadingElapsed < 6) return "AI 음원 합성 중..."
         return "마스터링 중..."
     }
 
@@ -117,17 +134,16 @@ export default function StudioPhase({ gameState, updateState }: Props) {
             <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in fade-in duration-500">
                 <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-[0_8px_32px_rgba(74,159,224,0.15)] flex flex-col items-center w-full max-w-[320px] text-center border border-white/60">
                     <Disc className="w-16 h-16 text-[#FF6EB4] animate-spin mb-6" style={{ animationDuration: '3s' }} />
-                    <h2 className="text-xl font-bold text-slate-800 mb-2">{getLoadingStage()}</h2>
-                    <p className="text-sm text-slate-500 font-medium mb-6">소요 시간: {loadingElapsed}초</p>
+                    <h2 className="text-xl font-bold text-slate-800 mb-6">{getLoadingStage()}</h2>
 
                     <div className="flex gap-[3px] items-end h-8 justify-center w-full">
-                        {Array.from({ length: 20 }).map((_, i) => (
+                        {waveBars.map((bar, i) => (
                             <div
                                 key={i}
                                 className="w-1.5 bg-[#4A9FE0] rounded-t-sm"
                                 style={{
-                                    height: `${Math.random() * 100}%`,
-                                    animation: `bounceSlight ${0.5 + Math.random()}s infinite alternate ease-in-out`
+                                    height: `${bar.height}%`,
+                                    animation: `bounceSlight ${bar.duration}s infinite alternate ease-in-out`
                                 }}
                             />
                         ))}
@@ -141,7 +157,7 @@ export default function StudioPhase({ gameState, updateState }: Props) {
         return (
             <div className="flex flex-col gap-6 animate-in slide-in-from-bottom-8 duration-500 pb-24">
                 <div className="text-center mt-4">
-                    <h1 className="text-2xl font-bold font-['NeoDunggeunmo'] text-[#4A9FE0]">음원 제작 완료</h1>
+                    <h1 className="text-2xl font-bold font-display text-[#4A9FE0]">음원 제작 완료</h1>
                 </div>
 
                 <div className="glass-card p-5 flex flex-col items-center text-center">
@@ -163,13 +179,13 @@ export default function StudioPhase({ gameState, updateState }: Props) {
                     <div className="max-w-sm mx-auto flex gap-3">
                         <Button
                             variant="outline"
-                            className="flex-1 h-14 rounded-xl border-[#4A9FE0]/30 text-[#4A9FE0] font-bold"
+                            className="flex-1 h-14 rounded-xl border-[#4A9FE0]/30 text-[#4A9FE0] font-bold neo-btn"
                             onClick={() => handleProduce(true)}
                         >
-                            <RefreshCw className="w-4 h-4 mr-1.5" /> 다시 제작 (-250만)
+                            <RefreshCw className="w-4 h-4 mr-1.5" /> 다시 제작 (<span className="stat-number">-250</span>만)
                         </Button>
                         <Button
-                            className="flex-1 h-14 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white font-bold rounded-xl shadow-[0_4px_14px_rgba(74,159,224,0.4)]"
+                            className="flex-1 h-14 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white font-bold rounded-xl shadow-[0_4px_14px_rgba(74,159,224,0.4)] neo-btn"
                             onClick={handleRelease}
                         >
                             발매하기
@@ -187,7 +203,7 @@ export default function StudioPhase({ gameState, updateState }: Props) {
     return (
         <div className="flex flex-col w-full h-full pb-24 animate-in fade-in duration-500 gap-6">
             <div className="mt-4">
-                <h1 className="text-2xl font-bold font-['NeoDunggeunmo'] text-[#4A9FE0]">스튜디오</h1>
+                <h1 className="text-2xl font-bold font-display text-[#4A9FE0]">스튜디오</h1>
                 <p className="text-xs text-slate-500 mt-1">신곡의 컨셉과 타겟 시장을 설정하세요.</p>
             </div>
 
@@ -214,12 +230,11 @@ export default function StudioPhase({ gameState, updateState }: Props) {
                         <button
                             key={m.id}
                             onClick={() => setMarket(m.id)}
-                            className={`glass-card p-3 flex justify-between items-center transition-all ${market === m.id ? 'border-[#4A9FE0] bg-[#e8f4fd] shadow-sm' : 'hover:bg-white/80'}`}
-                            style={{ borderColor: market === m.id ? 'var(--pop-blue)' : undefined }}
+                            className={`glass-card p-4 flex justify-between items-center transition-all ${market === m.id ? 'glass-card--selected scale-[1.02]' : 'hover:bg-white/80'}`}
                         >
-                            <div className="flex items-center gap-2">
-                                <span className="text-lg">{m.icon}</span>
-                                <span className={`text-sm font-bold ${market === m.id ? 'text-[#4A9FE0]' : 'text-slate-600'}`}>{m.label}</span>
+                            <div className="flex items-center gap-3">
+                                <span className="text-2xl">{m.icon}</span>
+                                <span className={`text-sm font-bold ${market === m.id ? 'text-[#FF6EB4]' : 'text-slate-600'}`}>{m.label}</span>
                             </div>
                             <span className="text-xs font-bold text-slate-400 stat-number">
                                 {m.cost === 0 ? '기본 (무료)' : `+ ${(m.cost / 10000).toLocaleString()}만원`}
@@ -233,13 +248,14 @@ export default function StudioPhase({ gameState, updateState }: Props) {
             <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 p-4 z-40 shadow-[0_-4px_24px_rgba(0,0,0,0.05)]">
                 <div className="max-w-sm mx-auto">
                     <Button
-                        className="w-full h-14 bg-[#FF6EB4] hover:bg-[#ff4e9f] text-white text-lg font-bold rounded-xl shadow-[0_4px_14px_rgba(255,110,180,0.4)] transition-transform active:scale-95"
+                        className="w-full h-14 bg-[#FF6EB4] hover:bg-[#ff4e9f] text-white text-lg font-bold rounded-xl shadow-[0_4px_14px_rgba(255,110,180,0.4)] transition-transform active:scale-95 neo-btn"
                         onClick={() => handleProduce(false)}
                     >
-                        음원 제작 시작 (총 {(totalCost / 10000).toLocaleString()}만원)
+                        음원 제작 시작 (총 <span className="stat-number">{(totalCost / 10000).toLocaleString()}</span>만원)
                     </Button>
                 </div>
             </div>
         </div>
     )
 }
+
