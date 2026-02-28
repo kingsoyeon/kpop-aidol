@@ -62,6 +62,7 @@ export default function StudioPhase({ gameState, updateState }: Props) {
 
         setIsProducing(true)
         setProducedTrack(null)
+        const startTime = Date.now()
 
         try {
             const res = await fetch('/api/produce', {
@@ -89,6 +90,12 @@ export default function StudioPhase({ gameState, updateState }: Props) {
                 members: gameState.currentGroup,
                 producedAt: cost / 10000, // 만원 단위
             })
+
+            // 최소 8초간 로딩을 보여주기 위한 딜레이 (사용자 경험 보장)
+            const remainingTime = Math.max(0, 8000 - (Date.now() - startTime))
+            if (remainingTime > 0) {
+                await new Promise(r => setTimeout(r, remainingTime))
+            }
         } catch (err) {
             console.error(err)
             alert("음원 생성 중 오류가 발생했습니다.")
@@ -106,9 +113,9 @@ export default function StudioPhase({ gameState, updateState }: Props) {
     }
 
     const getLoadingStage = () => {
-        if (loadingElapsed < 8) return "가사 창작 중..."
-        if (loadingElapsed < 18) return "사운드 설계 중..."
-        if (loadingElapsed < 75) return "AI 음원 합성 중..."
+        if (loadingElapsed < 2) return "가사 창작 중..."
+        if (loadingElapsed < 4) return "사운드 설계 중..."
+        if (loadingElapsed < 6) return "AI 음원 합성 중..."
         return "마스터링 중..."
     }
 
@@ -117,8 +124,7 @@ export default function StudioPhase({ gameState, updateState }: Props) {
             <div className="flex flex-col items-center justify-center min-h-[60vh] animate-in fade-in duration-500">
                 <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-[0_8px_32px_rgba(74,159,224,0.15)] flex flex-col items-center w-full max-w-[320px] text-center border border-white/60">
                     <Disc className="w-16 h-16 text-[#FF6EB4] animate-spin mb-6" style={{ animationDuration: '3s' }} />
-                    <h2 className="text-xl font-bold text-slate-800 mb-2">{getLoadingStage()}</h2>
-                    <p className="text-sm text-slate-500 font-medium mb-6">소요 시간: <span className="stat-number">{loadingElapsed}</span>초</p>
+                    <h2 className="text-xl font-bold text-slate-800 mb-6">{getLoadingStage()}</h2>
 
                     <div className="flex gap-[3px] items-end h-8 justify-center w-full">
                         {Array.from({ length: 20 }).map((_, i) => (
