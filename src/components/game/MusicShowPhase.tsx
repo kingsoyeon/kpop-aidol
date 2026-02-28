@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
-import { GameState } from '@/types/game'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { GameState, JudgeResult, GAME_CONSTANTS, ChartRank } from '@/types/game'
 import { Button } from '@/components/ui/button'
 
 interface Props {
@@ -35,34 +35,54 @@ const USERNAMES = ['tokki', 'kpop_fan1', 'stan_nova', 'luv_idol', 'jieun_99', 'h
 
 const MAX_CHAT = 6
 
+/** PRD §7.2: 심사 fallback — 50~80 랜덤 점수 */
+function buildFallbackJudge(): JudgeResult {
+    const base = Math.floor(Math.random() * 30) + 50
+    const ranks: ChartRank[] = ['상위권', '중위권', '하위권']
+    return {
+        scores: {
+            composition: base + Math.floor(Math.random() * 10),
+            vocal: base + Math.floor(Math.random() * 10),
+            performance: base + Math.floor(Math.random() * 10),
+            popularity: base + Math.floor(Math.random() * 10),
+            buzz: base + Math.floor(Math.random() * 10),
+        },
+        totalScore: base,
+        chartProbability: base,
+        comment: '평가 시스템 점검 중입니다. 랜덤 결과가 적용됩니다.',
+        result: ranks[Math.floor(Math.random() * ranks.length)],
+    }
+}
+
 export default function MusicShowPhase({ gameState, updateState }: Props) {
     const [chats, setChats] = useState<ChatMessage[]>([])
-    const [viewerCount, setViewerCount] = useState(140239)
-    const [chatCount, setChatCount] = useState(5014)
+    const [viewerCount, setViewerCount] = useState(140_239)
+    const [chatCount, setChatCount] = useState(5_014)
     const [isJudging, setIsJudging] = useState(false)
-    const [judgeData, setJudgeData] = useState<any>(null)
+    const [judgeData, setJudgeData] = useState<JudgeResult | null>(null)
     const [hearts, setHearts] = useState<HeartData[]>([])
+
+    // PRD §4.4 Race Condition 방지: 채팅 인터벌은 별도 ref로 관리
+    const chatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
     // 1. 팬 채팅 애니메이션용 useEffect
     useEffect(() => {
-        const chatInterval = setInterval(() => {
+        chatIntervalRef.current = setInterval(() => {
             const isSuperChat = Math.random() < 0.1
             const pool = (isJudging || judgeData) ? LIVE_CHAT_POOL : PRE_CHAT_POOL
             const text = pool[Math.floor(Math.random() * pool.length)]
             const username = USERNAMES[Math.floor(Math.random() * USERNAMES.length)]
-
             const newChat: ChatMessage = {
                 id: crypto.randomUUID(),
-                username,
-                text,
-                isHighlight: isSuperChat
+                username: USERNAMES[Math.floor(Math.random() * USERNAMES.length)],
+                text: pool[Math.floor(Math.random() * pool.length)],
+                isHighlight: isSuperChat,
             }
-
+            // 채팅 최대 6개 유지 (PRD §UI 가이드라인)
             setChats(prev => {
                 const next = [...prev, newChat]
                 return next.length > MAX_CHAT ? next.slice(-MAX_CHAT) : next
             })
-
             setViewerCount(p => p + Math.floor(Math.random() * 100))
             setChatCount(p => p + 1)
 
@@ -73,7 +93,9 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
             }
         }, 800)
 
-        return () => clearInterval(chatInterval)
+        return () => {
+            if (chatIntervalRef.current) clearInterval(chatIntervalRef.current)
+        }
     }, [isJudging, !!judgeData])
 
     const spawnHearts = useCallback((count: number, delayInterval: number = 0, emoji: string = '❤️') => {
@@ -91,7 +113,7 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
         }, 2000 + count * delayInterval)
     }, [])
 
-    // 2. 심사 API 호출 (User action triggered)
+    // 2. 심사 API 호출 — 유저 액션으로만 트리거 (Race Condition 방지)
     const startJudge = async () => {
         if (isJudging) return
         setIsJudging(true)
@@ -102,11 +124,15 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                 body: JSON.stringify({
                     track: gameState.currentTrack,
                     members: gameState.currentGroup,
-                    company: gameState.company,
-                    turn: gameState.turn
-                })
+                    company: {
+                        reputation: gameState.company.reputation,
+                        fanCount: gameState.company.fanCount,
+                    },
+                    turn: gameState.turn,
+                }),
             })
-            const data = await res.json()
+            if (!res.ok) throw new Error('Judge API failed')
+            const data: JudgeResult = await res.json()
             setJudgeData(data)
 
             // 1위 시 하트 파티클 10~15개 대량 발사 (50ms 간격)
@@ -114,34 +140,35 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                 spawnHearts(Math.floor(Math.random() * 6) + 10, 50)
             }
         } catch (err) {
-            console.error(err)
-            const fallbackData = {
-                scores: { composition: 70, vocal: 70, performance: 70, popularity: 70, buzz: 70 },
-                totalScore: 70, chartProbability: 50, comment: '음... 평가를 보류하겠습니다.', result: '중위권'
-            }
-            setJudgeData(fallbackData)
+            console.error('[MusicShowPhase] 심사 API 실패, fallback 사용:', err)
+            // PRD §7.2: 심사 fallback — 50~80 랜덤 점수
+            setJudgeData(buildFallbackJudge())
         } finally {
-            setIsJudging(false)
+            setIsJudging(false) // chatActive는 judgeData가 세팅된 후에도 유지—심사 완료 후도 채팅 지속
         }
     }
 
+    // 3. 결과 페이즈로 전환 — judgeData를 pendingEvent에 담아서 전달
     const handleResult = () => {
         if (!judgeData) return
         updateState({
             history: [...gameState.history, {
                 title: gameState.currentTrack?.title || 'Unknown',
-                result: judgeData.result
+                result: judgeData.result,
+                moneyChange: GAME_CONSTANTS.RESULT_EFFECTS[judgeData.result].money,
+                fanChange: GAME_CONSTANTS.RESULT_EFFECTS[judgeData.result].fanCount,
+                turn: gameState.turn,
             }],
             phase: 'result',
-            pendingEvent: { type: 'judgeResult', data: judgeData }
+            pendingEvent: { type: 'judgeResult', data: judgeData },
         })
     }
 
-    const scores = judgeData?.scores || { composition: 0, vocal: 0, performance: 0, popularity: 0, buzz: 0 }
+    const scores = judgeData?.scores ?? { composition: 0, vocal: 0, performance: 0, popularity: 0, buzz: 0 }
 
     return (
         <div className="flex flex-col w-full h-full pb-24 animate-in fade-in duration-500">
-            {/* 2.3.C. LIVE 대시보드 */}
+            {/* 라이브 대시보드 (Weverse/VLIVE 직접 참조) */}
             <div className="live-dashboard flex items-center justify-between bg-black/5 rounded-lg p-2 mb-4 mt-2">
                 <span className="live-badge">
                     <span className="live-dot animate-pulse" />
@@ -257,11 +284,13 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                 </div>
             </div>
 
-            {/* 심사 시작 컨테이너 */}
+            {/* 심사 패널 */}
             <div className="glass-card p-5 mb-4 relative overflow-hidden min-h-[220px]">
+                {/* 심사 시작 오버레이 */}
                 {!judgeData && !isJudging && (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-10">
                         <Button
+                            id="btn-start-judge"
                             onClick={startJudge}
                             className="bg-[#FF6EB4] hover:bg-[#ff4e9f] text-white font-bold px-8 shadow-lg neo-btn"
                         >
@@ -270,9 +299,10 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                     </div>
                 )}
 
+                {/* 심사 중 스피너 */}
                 {isJudging && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm z-10 text-center gap-2">
-                        <div className="w-8 h-8 rounded-full border-4 border-[#4A9FE0]/30 border-t-[#4A9FE0] animate-spin"></div>
+                        <div className="w-8 h-8 rounded-full border-4 border-[#4A9FE0]/30 border-t-[#4A9FE0] animate-spin" />
                         <p className="text-sm font-bold text-[#4A9FE0] animate-pulse">심사위원들이 평가하고 있습니다...</p>
                     </div>
                 )}
@@ -288,19 +318,23 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                         )}
                     </div>
                     <div className="space-y-3 text-[0.75rem] font-bold text-slate-600">
-                        {[
-                            { k: 'composition', l: '구성력', c: '#4ECDC4' },
-                            { k: 'vocal', l: '보컬 완성도', c: '#FF6EB4' },
-                            { k: 'performance', l: '퍼포먼스', c: '#F59E0B' },
-                            { k: 'popularity', l: '대중성', c: '#4A9FE0' },
-                            { k: 'buzz', l: '화제성', c: '#C084FC' }
-                        ].map((item, i) => (
+                        {([
+                            { k: 'composition' as const, l: '구성력', c: '#4ECDC4' },
+                            { k: 'vocal' as const, l: '보컬 완성도', c: '#FF6EB4' },
+                            { k: 'performance' as const, l: '퍼포먼스', c: '#F59E0B' },
+                            { k: 'popularity' as const, l: '대중성', c: '#4A9FE0' },
+                            { k: 'buzz' as const, l: '화제성', c: '#C084FC' },
+                        ] as const).map((item, i) => (
                             <div key={item.k} className="flex justify-between items-center">
                                 <span className="w-16">{item.l}</span>
                                 <div className="flex-1 mx-2 h-2 bg-slate-100 rounded-full overflow-hidden">
                                     <div
                                         className="h-full transition-all duration-1000 ease-out rounded-full"
-                                        style={{ width: `${scores[item.k]}%`, backgroundColor: item.c, transitionDelay: `${i * 150}ms` }}
+                                        style={{
+                                            width: `${scores[item.k]}%`,
+                                            backgroundColor: item.c,
+                                            transitionDelay: `${i * 150}ms`,
+                                        }}
                                     />
                                 </div>
                                 <span className="stat-number min-w-[20px] text-right">{scores[item.k]}</span>
@@ -324,6 +358,7 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
             <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 p-4 z-40 shadow-[0_-4px_24px_rgba(0,0,0,0.05)]">
                 <div className="max-w-sm mx-auto">
                     <Button
+                        id="btn-show-result"
                         className="w-full h-14 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white text-lg font-bold rounded-xl shadow-[0_4px_14px_rgba(74,159,224,0.4)] disabled:bg-slate-300 disabled:text-white transition-all duration-300 neo-btn"
                         onClick={handleResult}
                         disabled={!judgeData || isJudging}

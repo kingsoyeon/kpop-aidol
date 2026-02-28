@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { GameState, ConceptType, MarketType, Track } from '@/types/game'
 import { Button } from '@/components/ui/button'
 import AudioPlayer from '@/components/ui/AudioPlayer'
@@ -30,6 +30,15 @@ export default function StudioPhase({ gameState, updateState }: Props) {
     const [loadingElapsed, setLoadingElapsed] = useState(0)
 
     const [producedTrack, setProducedTrack] = useState<Track | null>(null)
+
+    // 웨이브 바 높이/속도를 마운트 시 1회만 계산 (리렌더 시 깜빡임 방지)
+    // MEMORY.md §Known Issues: "Sound wave bars in StudioPhase might flicker due to Math.random()"
+    const waveBars = useMemo(() =>
+        Array.from({ length: 20 }, () => ({
+            height: Math.floor(Math.random() * 100),
+            duration: 0.5 + Math.random(),
+        }))
+        , [])
 
     // 4단계 로딩 콘솔 타이머
     useEffect(() => {
@@ -127,13 +136,13 @@ export default function StudioPhase({ gameState, updateState }: Props) {
                     <h2 className="text-xl font-bold text-slate-800 mb-6">{getLoadingStage()}</h2>
 
                     <div className="flex gap-[3px] items-end h-8 justify-center w-full">
-                        {Array.from({ length: 20 }).map((_, i) => (
+                        {waveBars.map((bar, i) => (
                             <div
                                 key={i}
                                 className="w-1.5 bg-[#4A9FE0] rounded-t-sm"
                                 style={{
-                                    height: `${Math.random() * 100}%`,
-                                    animation: `bounceSlight ${0.5 + Math.random()}s infinite alternate ease-in-out`
+                                    height: `${bar.height}%`,
+                                    animation: `bounceSlight ${bar.duration}s infinite alternate ease-in-out`
                                 }}
                             />
                         ))}
