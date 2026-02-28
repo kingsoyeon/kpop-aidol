@@ -55,11 +55,11 @@ export async function generateIdolImage(data: { gender: string; age: number }): 
     const imagenPrompt = buildImagenPrompt(data.gender, data.age);
     const client = getStudioClient();
 
-    // Strategy 1: Gemini Flash image model (fastest)
+    // Strategy 1: Gemini 2.0 Flash image generation model (fastest)
     try {
-        console.log(`[Imagen] Strategy 1: gemini-3.1-flash-image-preview (${data.gender}, ${data.age})...`);
+        console.log(`[Imagen] Strategy 1: gemini-2.0-flash-preview-image-generation (${data.gender}, ${data.age})...`);
         const response = await client.models.generateContent({
-            model: 'gemini-3.1-flash-image-preview',
+            model: 'gemini-2.0-flash-preview-image-generation',
             contents: flashPrompt,
             config: { responseModalities: ['IMAGE', 'TEXT'] },
         });
@@ -73,11 +73,11 @@ export async function generateIdolImage(data: { gender: string; age: number }): 
         console.error('[Imagen] Strategy 1 failed:', err?.message || err);
     }
 
-    // Strategy 2: Gemini Pro image model (medium speed)
+    // Strategy 2: Gemini 2.0 Pro image generation model (higher quality)
     try {
-        console.log(`[Imagen] Strategy 2: gemini-3-pro-image-preview (${data.gender}, ${data.age})...`);
+        console.log(`[Imagen] Strategy 2: gemini-2.0-pro-exp (${data.gender}, ${data.age})...`);
         const response = await client.models.generateContent({
-            model: 'gemini-3-pro-image-preview',
+            model: 'gemini-2.0-pro-exp',
             contents: flashPrompt,
             config: { responseModalities: ['IMAGE', 'TEXT'] },
         });
