@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { GameState } from '@/types/game'
 import { Button } from '@/components/ui/button'
+import { generateUUID } from '@/lib/utils/uuid'
 
 interface Props {
     gameState: GameState
@@ -49,7 +50,7 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
             const username = USERNAMES[Math.floor(Math.random() * USERNAMES.length)]
 
             const newChat: ChatMessage = {
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 username,
                 text,
                 isHighlight: isSuperChat

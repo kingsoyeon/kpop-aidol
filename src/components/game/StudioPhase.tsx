@@ -3,6 +3,7 @@ import { GameState, ConceptType, MarketType, Track } from '@/types/game'
 import { Button } from '@/components/ui/button'
 import AudioPlayer from '@/components/ui/AudioPlayer'
 import { Loader2, Disc, Mic2, RefreshCw } from 'lucide-react'
+import { generateUUID } from '@/lib/utils/uuid'
 
 interface Props {
     gameState: GameState
@@ -80,7 +81,7 @@ export default function StudioPhase({ gameState, updateState }: Props) {
             const data = await res.json()
 
             setProducedTrack({
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 title: data.title,
                 concept,
                 targetMarket: market,
