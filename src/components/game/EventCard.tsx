@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { GameState, GAME_CONSTANTS } from '@/types/game'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, Loader2 } from 'lucide-react'
+import { translate } from '@/lib/i18n'
 
 interface Props {
     gameState: GameState
@@ -139,8 +140,8 @@ export default function EventCard({ gameState, updateState }: Props) {
                 />
 
                 <div className="flex items-center gap-2 text-[#EF4444] mb-4">
-                    <AlertTriangle className="w-6 h-6" />
-                    <h2 className="text-xl font-bold font-display">긴급 이벤트 발생</h2>
+                    <AlertTriangle className="w-6 h-6 flex-shrink-0" />
+                    <h2 className="text-xl font-bold font-display break-keep">{translate('event.title', gameState.locale)}</h2>
                 </div>
 
                 <h3 className="text-2xl font-bold text-slate-800 mb-2 leading-tight break-keep">
@@ -149,15 +150,15 @@ export default function EventCard({ gameState, updateState }: Props) {
                 <p className="text-slate-600 font-medium leading-relaxed break-keep">
                     {eventData.description}
                 </p>
-                <div className="mt-4 inline-block bg-[#EF4444]/10 text-[#EF4444] px-3 py-1 rounded-full text-xs font-bold">
-                    관련 멤버: {eventData.memberName}
+                <div className="mt-4 inline-block bg-[#EF4444]/10 text-[#EF4444] px-3 py-1 rounded-full text-xs font-bold break-keep">
+                    {translate('event.relatedMember', gameState.locale)} {eventData.memberName}
                 </div>
             </div>
 
             {/* 선택지 혹은 결과 표시 */}
             {!selectedChoice ? (
                 <div className="space-y-3">
-                    <h3 className="text-sm font-bold text-slate-500 px-1">대응 방법 선택</h3>
+                    <h3 className="text-sm font-bold text-slate-500 px-1 break-keep">{translate('event.chooseAction', gameState.locale)}</h3>
                     {eventData.choices.map((choice, idx) => (
                         <button
                             key={idx}
@@ -169,17 +170,17 @@ export default function EventCard({ gameState, updateState }: Props) {
                             <div className="flex flex-wrap gap-2">
                                 {choice.effect.reputation !== 0 && (
                                     <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-sm stat-number ${choice.effect.reputation > 0 ? 'bg-[#10B981]/10 text-[#10B981]' : 'bg-[#EF4444]/10 text-[#EF4444]'}`}>
-                                        평판 {choice.effect.reputation > 0 ? '+' : ''}{choice.effect.reputation}
+                                        {translate('event.repMsg', gameState.locale)} {choice.effect.reputation > 0 ? '+' : ''}{choice.effect.reputation}
                                     </span>
                                 )}
                                 {choice.effect.money !== 0 && (
                                     <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-sm stat-number ${choice.effect.money > 0 ? 'bg-[#10B981]/10 text-[#10B981]' : 'bg-[#EF4444]/10 text-[#EF4444]'}`}>
-                                        자금 {choice.effect.money > 0 ? '+' : ''}{(Math.abs(choice.effect.money) / 10000).toLocaleString()}만
+                                        {translate('event.moneyMsg', gameState.locale)} {choice.effect.money > 0 ? '+' : ''}{gameState.locale === 'en' ? '₩' : ''}{(Math.abs(choice.effect.money) / 10000).toLocaleString()}{translate('common.moneyUnit', gameState.locale)}
                                     </span>
                                 )}
                                 {choice.effect.fanCount !== 0 && (
                                     <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-sm stat-number ${choice.effect.fanCount > 0 ? 'bg-[#10B981]/10 text-[#10B981]' : 'bg-[#EF4444]/10 text-[#EF4444]'}`}>
-                                        팬덤 {choice.effect.fanCount > 0 ? '+' : ''}{choice.effect.fanCount.toLocaleString()}
+                                        {translate('event.fanMsg', gameState.locale)} {choice.effect.fanCount > 0 ? '+' : ''}{choice.effect.fanCount.toLocaleString()}
                                     </span>
                                 )}
                             </div>
@@ -189,14 +190,14 @@ export default function EventCard({ gameState, updateState }: Props) {
             ) : (
                 // 선택 결과 카드
                 <div className="glass-card p-6 animate-in slide-in-from-bottom-4 text-center">
-                    <h3 className="font-bold text-slate-800 mb-2">대응 결과</h3>
+                    <h3 className="font-bold text-slate-800 mb-2 break-keep">{translate('event.resultTitle', gameState.locale)}</h3>
                     <p className="text-[#4A9FE0] font-bold mb-6">{selectedChoice.resultMessage}</p>
                     <Button
                         id="btn-event-continue"
                         className="w-full h-12 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white font-bold rounded-xl shadow-[0_4px_14px_rgba(74,159,224,0.4)] neo-btn"
                         onClick={handleNext}
                     >
-                        다음 컴백 준비
+                        {translate('event.nextBtn', gameState.locale)}
                     </Button>
                 </div>
             )}

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { GameState, JudgeResult, GAME_CONSTANTS, ChartRank } from '@/types/game'
 import { Button } from '@/components/ui/button'
+import { translate } from '@/lib/i18n'
 import { generateUUID } from '@/lib/utils/uuid'
 
 interface Props {
@@ -62,6 +63,7 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
     const [isJudging, setIsJudging] = useState(false)
     const [judgeData, setJudgeData] = useState<JudgeResult | null>(null)
     const [hearts, setHearts] = useState<HeartData[]>([])
+    const [isTranslatingMsg, setIsTranslatingMsg] = useState(false)
 
     // PRD §4.4 Race Condition 방지: 채팅 인터벌은 별도 ref로 관리
     const chatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -102,7 +104,7 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
 
     const spawnHearts = useCallback((count: number, delayInterval: number = 0, emoji: string = '❤️') => {
         const newHearts = Array.from({ length: count }).map((_, i) => ({
-            id: crypto.randomUUID(),
+            id: generateUUID(),
             delay: i * delayInterval,
             right: 16 + Math.random() * 24,
             emoji
@@ -176,26 +178,32 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                     <span className="live-dot animate-pulse" />
                     LIVE
                 </span>
-                <div className="flex gap-4">
-                    <span className="viewer-count">👁 {viewerCount.toLocaleString()}</span>
+                <div className="flex gap-4 items-center">
+                    <span className="viewer-count">👁 {viewerCount.toLocaleString()}{gameState.locale === 'ko' ? '명' : ''}</span>
                     <span className="chat-count">💬 {chatCount.toLocaleString()}</span>
+                    <button
+                        onClick={() => setIsTranslatingMsg(!isTranslatingMsg)}
+                        className={`text-[0.6rem] font-bold px-2 py-1 rounded-sm border transition-colors ${isTranslatingMsg ? 'bg-[#4A9FE0]/10 text-[#4A9FE0] border-[#4A9FE0]' : 'text-slate-400 border-slate-300'}`}
+                    >
+                        Aa 가
+                    </button>
                 </div>
             </div>
 
             <div className="mb-4 animate-[countPulse_2s_infinite]">
                 <h1 className="text-2xl font-bold font-display text-[#4A9FE0] flex items-center gap-2">
                     <span className="live-dot bg-[#FF3B30] w-2 h-2" />
-                    음악 방송 출격
+                    {translate('musicshow.title', gameState.locale)}
                 </h1>
-                <p className="text-xs text-slate-500 mt-1 font-medium">
-                    무대 위에서 가장 빛나는 순간
+                <p className="text-xs text-slate-500 mt-1 font-medium break-keep">
+                    {translate('musicshow.subtitle', gameState.locale)}
                 </p>
             </div>
 
             {/* 트랙 및 그룹 정보 */}
             <div className="flex gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
                 <div className="flex-shrink-0 glass-card p-3 min-w-[140px]">
-                    <p className="text-[0.65rem] font-bold text-slate-400 mb-1">CURRENT TRACK</p>
+                    <p className="text-[0.65rem] font-bold text-slate-400 mb-1">{translate('musicshow.track.currentTrack', gameState.locale)}</p>
                     <h2 className="text-sm font-bold text-slate-800 truncate">{gameState.currentTrack?.title}</h2>
                     <div className="flex gap-1 mt-1">
                         <span className="text-[0.6rem] bg-[#4A9FE0]/10 text-[#4A9FE0] px-1.5 py-0.5 rounded-full font-bold">
@@ -234,14 +242,14 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
 
                     {isJudging ? (
                         <div className="text-[#FF6EB4] font-bold text-xl animate-pulse tracking-widest font-display">
-                            PERFORMING...
+                            {translate('musicshow.live.performing', gameState.locale)}
                         </div>
                     ) : judgeData ? (
                         <div className="text-[#4ECDC4] font-bold text-xl animate-in zoom-in font-display">
-                            STAGE CLEAR!
+                            {translate('musicshow.live.stageClear', gameState.locale)}
                         </div>
                     ) : (
-                        <div className="text-white/50 font-bold font-display">대기중...</div>
+                        <div className="text-white/50 font-bold font-display">{translate('musicshow.live.waiting', gameState.locale)}</div>
                     )}
 
                     {/* 2.3.D. 채팅 오버레이 */}
@@ -249,7 +257,11 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                         {chats.map(chat => (
                             <div key={chat.id} className={`chat-bubble ${chat.isHighlight ? 'chat-bubble--highlight' : ''}`}>
                                 <span className="chat-bubble__username">{chat.username}</span>
-                                <span className="text-slate-800">{chat.text}</span>
+                                <span className="text-slate-800">
+                                    {isTranslatingMsg && gameState.locale === 'en'
+                                        ? translate(`chat.${chat.text}`, gameState.locale)
+                                        : chat.text}
+                                </span>
                             </div>
                         ))}
                     </div>
@@ -258,7 +270,7 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                 {/* 하단 입력 탭 & 하트 탭 버튼 */}
                 <div className="h-14 bg-black/40 border-t border-white/10 flex items-center px-4 gap-3 shrink-0 relative z-20">
                     <div className="flex-1 bg-white/10 rounded-full h-9 flex items-center px-4 border border-white/5">
-                        <span className="text-white/40 text-[0.7rem] font-bold font-sans">실시간 채팅을 입력해보세요...</span>
+                        <span className="text-white/40 text-[0.7rem] font-bold font-sans truncate">{translate('musicshow.live.chatPlaceholder', gameState.locale)}</span>
                     </div>
                     <button
                         onClick={(e) => {
@@ -296,7 +308,7 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                             onClick={startJudge}
                             className="bg-[#FF6EB4] hover:bg-[#ff4e9f] text-white font-bold px-8 shadow-lg neo-btn"
                         >
-                            심사 시작
+                            {translate('musicshow.judge.startBtn', gameState.locale)}
                         </Button>
                     </div>
                 )}
@@ -305,30 +317,30 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                 {isJudging && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm z-10 text-center gap-2">
                         <div className="w-8 h-8 rounded-full border-4 border-[#4A9FE0]/30 border-t-[#4A9FE0] animate-spin" />
-                        <p className="text-sm font-bold text-[#4A9FE0] animate-pulse">심사위원들이 평가하고 있습니다...</p>
+                        <p className="text-sm font-bold text-[#4A9FE0] animate-pulse">{translate('musicshow.judge.progress', gameState.locale)}</p>
                     </div>
                 )}
 
                 <div className="space-y-4 relative z-0">
                     <div className="flex justify-between items-end">
-                        <h3 className="font-bold text-slate-700">심사위원 점수</h3>
+                        <h3 className="font-bold text-slate-700">{translate('musicshow.judge.title', gameState.locale)}</h3>
                         {judgeData && (
                             <div className="text-right">
-                                <p className="text-[0.6rem] font-bold text-slate-400 uppercase tracking-tighter">Win Probability</p>
+                                <p className="text-[0.6rem] font-bold text-slate-400 uppercase tracking-tighter">{translate('musicshow.judge.winProb', gameState.locale)}</p>
                                 <p className="text-xl font-bold text-[#FF6EB4] stat-number leading-none">{judgeData.chartProbability}%</p>
                             </div>
                         )}
                     </div>
                     <div className="space-y-3 text-[0.75rem] font-bold text-slate-600">
                         {([
-                            { k: 'composition' as const, l: '구성력', c: '#4ECDC4' },
-                            { k: 'vocal' as const, l: '보컬 완성도', c: '#FF6EB4' },
-                            { k: 'performance' as const, l: '퍼포먼스', c: '#F59E0B' },
-                            { k: 'popularity' as const, l: '대중성', c: '#4A9FE0' },
-                            { k: 'buzz' as const, l: '화제성', c: '#C084FC' },
+                            { k: 'composition' as const, c: '#4ECDC4' },
+                            { k: 'vocal' as const, c: '#FF6EB4' },
+                            { k: 'performance' as const, c: '#F59E0B' },
+                            { k: 'popularity' as const, c: '#4A9FE0' },
+                            { k: 'buzz' as const, c: '#C084FC' },
                         ] as const).map((item, i) => (
                             <div key={item.k} className="flex justify-between items-center">
-                                <span className="w-16">{item.l}</span>
+                                <span className="w-16 break-keep">{translate(`musicshow.judge.${item.k}`, gameState.locale)}</span>
                                 <div className="flex-1 mx-2 h-2 bg-slate-100 rounded-full overflow-hidden">
                                     <div
                                         className="h-full transition-all duration-1000 ease-out rounded-full"
@@ -348,7 +360,7 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                         <p className="text-sm text-slate-700 italic font-medium flex-1">"{judgeData?.comment || '...'}"</p>
                         {judgeData && (
                             <div className="text-center px-3 py-1 bg-slate-50 rounded-lg border border-slate-100">
-                                <p className="text-[0.6rem] font-bold text-slate-400">TOTAL</p>
+                                <p className="text-[0.6rem] font-bold text-slate-400">{translate('musicshow.judge.total', gameState.locale)}</p>
                                 <p className="text-lg font-bold text-[#4A9FE0] stat-number leading-none">{judgeData.totalScore}</p>
                             </div>
                         )}
@@ -365,7 +377,7 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                         onClick={handleResult}
                         disabled={!judgeData || isJudging}
                     >
-                        결과 확인하기
+                        {translate('musicshow.result.btn', gameState.locale)}
                     </Button>
                 </div>
             </div>
