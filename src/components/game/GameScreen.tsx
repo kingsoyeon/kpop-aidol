@@ -44,21 +44,37 @@ export default function GameScreen() {
             <div className="deco-item" style={{ top: '90%', right: '10%', fontSize: '1.3rem', opacity: 0.6, '--r': '20deg', '--delay': '2.5s' } as React.CSSProperties}>🌟</div>
 
             {/* 상단 HUD — intro/gameover 페이즈에서는 로케일 토글만 표시 */}
-            <div className={`sticky top-0 w-full p-4 z-50 flex items-center ${gameState.phase === 'intro' || gameState.phase === 'gameover' ? 'justify-end' : 'justify-between bg-white/40 backdrop-blur-[16px] border-b border-white/50'}`}>
+            <div className={`sticky top-0 w-full px-3 py-2 z-50 flex items-center gap-2 ${gameState.phase === 'intro' || gameState.phase === 'gameover' ? 'justify-end' : 'justify-between bg-white/40 backdrop-blur-[16px] border-b border-white/50'}`}>
                 {gameState.phase !== 'intro' && gameState.phase !== 'gameover' && (
-                    <div className="flex justify-between items-center max-w-sm gap-2 w-full text-[0.9375rem] mr-auto">
-                        <span className="stat-number text-slate-800 font-bold">💰 {gameState.locale === 'en' ? '₩' : ''}{gameState.company.money.toLocaleString()}{gameState.locale === 'ko' ? '원' : ''}</span>
-                        <span className="stat-number text-slate-800 font-bold">⭐ <span className="stat-number">{gameState.company.reputation}</span>{gameState.locale === 'ko' ? '점' : ''}</span>
-                        <span className="stat-number text-slate-800 font-bold">👥 {gameState.company.fanCount.toLocaleString()}{gameState.locale === 'ko' ? '명' : ''}</span>
+                    <div className="flex items-center gap-2 mr-auto min-w-0 overflow-hidden">
+                        <span className="stat-number text-slate-800 font-bold text-[0.78rem] whitespace-nowrap">💰 {gameState.locale === 'en' ? '₩' : ''}{gameState.locale === 'ko' ? Math.floor(gameState.company.money / 10000).toLocaleString() + '만' : gameState.company.money.toLocaleString()}</span>
+                        <span className="stat-number text-slate-800 font-bold text-[0.78rem] whitespace-nowrap">⭐ {gameState.company.reputation}{gameState.locale === 'ko' ? '점' : ''}</span>
+                        <span className="stat-number text-slate-800 font-bold text-[0.78rem] whitespace-nowrap">👥 {gameState.company.fanCount.toLocaleString()}{gameState.locale === 'ko' ? '명' : ''}</span>
                     </div>
                 )}
 
-                <button
-                    onClick={() => updateState({ locale: gameState.locale === 'ko' ? 'en' : 'ko' })}
-                    className="flex-shrink-0 bg-white/60 border border-slate-200 text-slate-600 px-3 py-1 rounded-full text-xs font-bold shadow-sm hover:bg-white transition-colors ml-auto"
-                >
-                    {gameState.locale.toUpperCase()}
-                </button>
+                {/* 언어 토글 + 리셋 버튼 그룹 */}
+                <div className="flex items-center gap-1.5 flex-shrink-0 ml-auto">
+                    {gameState.phase !== 'intro' && gameState.phase !== 'gameover' && (
+                        <button
+                            onClick={() => updateState({
+                                company: { name: '', money: GAME_CONSTANTS.INITIAL_MONEY, reputation: GAME_CONSTANTS.INITIAL_REPUTATION, fanCount: GAME_CONSTANTS.INITIAL_FAN_COUNT },
+                                roster: [], currentGroup: [], currentTrack: null,
+                                phase: 'intro', turn: 1, history: [], pendingEvent: null,
+                                locale: gameState.locale,
+                            })}
+                            className="bg-white/60 border border-slate-200 text-slate-500 px-2.5 py-1 rounded-full text-[0.7rem] font-bold shadow-sm hover:bg-white transition-colors"
+                        >
+                            🔄
+                        </button>
+                    )}
+                    <button
+                        onClick={() => updateState({ locale: gameState.locale === 'ko' ? 'en' : 'ko' })}
+                        className="bg-white/60 border border-slate-200 text-slate-600 px-2.5 py-1 rounded-full text-[0.7rem] font-bold shadow-sm hover:bg-white transition-colors"
+                    >
+                        {gameState.locale === 'ko' ? 'KO' : 'EN'}
+                    </button>
+                </div>
             </div>
 
             {/* 게임 페이즈 렌더링 */}
