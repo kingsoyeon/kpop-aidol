@@ -55,15 +55,19 @@ export async function generateIdolImage(data: { gender: string; age: number }): 
     const imagenPrompt = buildImagenPrompt(data.gender, data.age);
     const client = getStudioClient();
 
-    // Strategy 1: Gemini 2.0 Flash image generation model (fastest)
+    // Strategy 1: Google AI Studio - Imagen 3.0
     try {
-        console.log(`[Imagen] Strategy 1: gemini-2.0-flash-preview-image-generation (${data.gender}, ${data.age})...`);
-        const response = await client.models.generateContent({
-            model: 'gemini-2.0-flash-preview-image-generation',
-            contents: flashPrompt,
-            config: { responseModalities: ['IMAGE', 'TEXT'] },
+        console.log(`[Imagen] Strategy 1: imagen-3.0-generate-002 (${data.gender}, ${data.age})...`);
+        const response = await client.models.generateImages({
+            model: 'imagen-3.0-generate-002',
+            prompt: imagenPrompt,
+            config: {
+                numberOfImages: 1,
+                outputMimeType: 'image/jpeg',
+                aspectRatio: '1:1'
+            },
         });
-        const base64 = extractBase64FromContent(response);
+        const base64 = response.generatedImages?.[0]?.image?.imageBytes;
         if (base64) {
             console.log('[Imagen] Strategy 1 success.');
             return `data:image/jpeg;base64,${base64}`;
