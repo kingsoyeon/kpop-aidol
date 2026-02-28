@@ -7,10 +7,15 @@ import MusicShowPhase from './MusicShowPhase'
 import ChartResult from './ChartResult'
 import EventCard from './EventCard'
 import GameOverPhase from './GameOverPhase'
-import { GameState } from '@/types/game'
+import { GameState, GAME_CONSTANTS } from '@/types/game'
 
 const initialState: GameState = {
-    company: { name: '', money: 10000000, reputation: 50, fanCount: 0 },
+    company: {
+        name: '',
+        money: GAME_CONSTANTS.INITIAL_MONEY,
+        reputation: GAME_CONSTANTS.INITIAL_REPUTATION,
+        fanCount: GAME_CONSTANTS.INITIAL_FAN_COUNT,
+    },
     roster: [],
     currentGroup: [],
     currentTrack: null,
@@ -23,6 +28,7 @@ const initialState: GameState = {
 export default function GameScreen() {
     const [gameState, setGameState] = useState<GameState>(initialState)
 
+    // 단방향 상태 업데이트 — 자식 컴포넌트는 이 함수만 사용
     const updateState = (updates: Partial<GameState>) =>
         setGameState(prev => ({ ...prev, ...updates }))
 
@@ -36,7 +42,7 @@ export default function GameScreen() {
             <div className="deco-item" style={{ top: '80%', left: '7%', fontSize: '1.1rem', opacity: 0.5, '--r': '-5deg', '--delay': '1.5s' } as React.CSSProperties}>💖</div>
             <div className="deco-item" style={{ top: '90%', right: '10%', fontSize: '1.3rem', opacity: 0.6, '--r': '20deg', '--delay': '2.5s' } as React.CSSProperties}>🌟</div>
 
-            {/* 상단 HUD */}
+            {/* 상단 HUD — intro/gameover 페이즈에서는 숨김 */}
             {gameState.phase !== 'intro' && gameState.phase !== 'gameover' && (
                 <div className="sticky top-0 w-full bg-white/40 backdrop-blur-[16px] border-b border-white/50 p-4 z-50">
                     <div className="flex justify-between items-center max-w-sm mx-auto text-[0.9375rem]">
