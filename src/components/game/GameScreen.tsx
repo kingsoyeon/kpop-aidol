@@ -41,7 +41,7 @@ export default function GameScreen() {
                 <div className="sticky top-0 w-full bg-white/40 backdrop-blur-[16px] border-b border-white/50 p-4 z-50">
                     <div className="flex justify-between items-center max-w-sm mx-auto text-[0.9375rem]">
                         <span className="stat-number text-slate-800 font-bold">💰 {gameState.company.money.toLocaleString()}원</span>
-                        <span className="stat-number text-slate-800 font-bold">⭐ {gameState.company.reputation}점</span>
+                        <span className="stat-number text-slate-800 font-bold">⭐ <span className="stat-number">{gameState.company.reputation}</span>점</span>
                         <span className="stat-number text-slate-800 font-bold">👥 {gameState.company.fanCount.toLocaleString()}명</span>
                     </div>
                 </div>

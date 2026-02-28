@@ -78,8 +78,8 @@ export default function ChartResult({ gameState, updateState }: Props) {
     if (!showResult) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[70vh]">
-                <h2 className="text-[#4A9FE0] font-bold mb-8">차트 결과 발표</h2>
-                <div key={countdown} className="text-8xl font-bold font-['NeoDunggeunmo'] text-[#FF6EB4] p-8" style={{ animation: 'countPulse 1s' }}>
+                <h2 className="text-[#4A9FE0] font-bold mb-8 font-display">차트 결과 발표</h2>
+                <div key={countdown} className="text-8xl font-bold font-display text-[#FF6EB4] p-8" style={{ animation: 'countPulse 1s' }}>
                     {countdown}
                 </div>
             </div>
@@ -101,7 +101,7 @@ export default function ChartResult({ gameState, updateState }: Props) {
                 >
                     {rInfo.icon}
                 </div>
-                <h1 className="text-4xl font-bold font-['NeoDunggeunmo'] mt-4 mb-2" style={{ color: rInfo.color }}>
+                <h1 className="text-4xl font-bold font-display mt-4 mb-2" style={{ color: rInfo.color }}>
                     {resultKey}
                 </h1>
                 <p className="text-slate-600 font-bold">{rInfo.label}</p>
@@ -130,7 +130,7 @@ export default function ChartResult({ gameState, updateState }: Props) {
             <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 p-4 z-40 shadow-[0_-4px_24px_rgba(0,0,0,0.05)]">
                 <div className="max-w-sm mx-auto">
                     <Button
-                        className="w-full h-14 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white text-lg font-bold rounded-xl shadow-[0_4px_14px_rgba(74,159,224,0.4)]"
+                        className="w-full h-14 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white text-lg font-bold rounded-xl shadow-[0_4px_14px_rgba(74,159,224,0.4)] neo-btn"
                         onClick={handleNext}
                     >
                         다음 준비하기

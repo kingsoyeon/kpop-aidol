@@ -36,7 +36,7 @@
 
 :root {
   /* shadcn variables mapped to Y2K light theme */
-  --background: oklch(1 0 0); /* White base, though we'll use bg-primary */
+  --background: oklch(1 0 0);
   --foreground: #1E293B;
   --card: rgba(255, 255, 255, 0.75);
   --card-foreground: #1E293B;
@@ -58,41 +58,62 @@
   --radius: 0.625rem;
 
   /* === K-POP A IDOL 컬러 시스템 (2026-02-27 확정) === */
-  
+
   /* 배경 계열 — Phoning 파스텔 블루 직접 추출 */
-  --bg-primary:    linear-gradient(135deg, #E8F4FD 0%, #B8E0FF 50%, #E8F0FF 100%);
-  --bg-card:       rgba(255, 255, 255, 0.75);   /* 글래스모피즘 카드 */
+  --bg-primary: linear-gradient(135deg, #E8F4FD 0%, #B8E0FF 50%, #E8F0FF 100%);
+  --bg-card: rgba(255, 255, 255, 0.75);
+  /* 글래스모피즘 카드 */
   --bg-card-hover: rgba(255, 255, 255, 0.90);
-  --bg-overlay:    rgba(255, 255, 255, 0.60);   /* 반투명 오버레이 */
-  
+  --bg-overlay: rgba(255, 255, 255, 0.60);
+  /* 반투명 오버레이 */
+
   /* Y2K 오브젝트 레이어 (배경 산포용) */
-  --deco-bubble:  rgba(168, 240, 200, 0.4);     /* 반투명 민트 버블 */
-  --deco-star:    rgba(255, 217, 61, 0.6);      /* 형광 별 */
-  --deco-heart:   rgba(255, 110, 180, 0.5);     /* 핑크 하트 */
-  
+  --deco-bubble: rgba(168, 240, 200, 0.4);
+  /* 반투명 민트 버블 */
+  --deco-star: rgba(255, 217, 61, 0.6);
+  /* 형광 별 */
+  --deco-heart: rgba(255, 110, 180, 0.5);
+  /* 핑크 하트 */
+
   /* 포인트 컬러 — Y2K 팬앱 감성 */
-  --pop-blue:   #4A9FE0;    /* 메인 액션 (버튼, 링크) */
-  --pop-pink:   #FF6EB4;    /* 강조/선택 상태 */
-  --pop-green:  #4ECDC4;    /* 성공/긍정 */
-  --pop-yellow: #FFD93D;    /* 경고/REC 배지 */
-  --pop-purple: #C084FC;    /* 특별 이벤트 */
-  
+  --pop-blue: #4A9FE0;
+  /* 메인 액션 (버튼, 링크) */
+  --pop-pink: #FF6EB4;
+  /* 강조/선택 상태 */
+  --pop-green: #4ECDC4;
+  /* 성공/긍정 */
+  --pop-yellow: #FFD93D;
+  /* 경고/REC 배지 */
+  --pop-purple: #C084FC;
+  /* 특별 이벤트 */
+
   /* 상태 컬러 */
-  --success:   #10B981;     /* 1위/성공 */
-  --warning:   #F59E0B;     /* 위기 이벤트 */
-  --danger:    #EF4444;     /* 나락/위험 */
-  --info:      #60A5FA;     /* 정보/설명 */
-  
+  --success: #10B981;
+  /* 1위/성공 */
+  --warning: #F59E0B;
+  /* 위기 이벤트 */
+  --danger: #EF4444;
+  /* 나락/위험 */
+  --info: #60A5FA;
+  /* 정보/설명 */
+
   /* 텍스트 */
-  --text-primary:   #1E293B;  /* 제목/주요 내용 */
-  --text-secondary: #64748B;  /* 보조 설명 */
-  --text-meta:      #94A3B8;  /* 타임스탬프/태그 */
-  
+  --text-primary: #1E293B;
+  /* 제목/주요 내용 */
+  --text-secondary: #64748B;
+  /* 보조 설명 */
+  --text-meta: #94A3B8;
+  /* 타임스탬프/태그 */
+
   /* 배지/뱃지 (Weverse/Phoning 직접 추출) */
-  --badge-live:  #FF3B30;   /* LIVE 배지 (Weverse 기준) */
-  --badge-rec:   #FFD93D;   /* AI 추천 REC 배지 */
-  --badge-unread: #FF3B30;  /* 미읽 숫자 배지 (Phoning 기준) */
-  --badge-online: #34C759;  /* 온라인 도트 (Phoning 기준) */
+  --badge-live: #FF3B30;
+  /* LIVE 배지 (Weverse 기준) */
+  --badge-rec: #FFD93D;
+  /* AI 추천 REC 배지 */
+  --badge-unread: #FF3B30;
+  /* 미읽 숫자 배지 (Phoning 기준) */
+  --badge-online: #34C759;
+  /* 온라인 도트 (Phoning 기준) */
 
   /* Fonts */
   --font-sans-full: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
@@ -103,6 +124,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     background: var(--bg-primary);
     color: var(--text-primary);
@@ -112,10 +134,14 @@
 }
 
 @layer components {
-  /* Phoning 스타일 강조: 주요 숫자는 tabular-nums */
-  .stat-number { font-variant-numeric: tabular-nums; font-weight: 700; }
 
-  /* 2.3.A. 글래스 카드 (.glass-card) */
+  /* Phoning 스타일 강조: 주요 숫자는 tabular-nums */
+  .stat-number {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+
+  /* 2.3.A. 글래스 카드 (.glass-card) — Phoning 반투명 카드 */
   .glass-card {
     background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(12px);
@@ -123,26 +149,38 @@
     border: 1px solid rgba(255, 255, 255, 0.8);
     border-radius: 20px;
     box-shadow: 0 4px 24px rgba(74, 159, 224, 0.12),
-                0 1px 4px rgba(0, 0, 0, 0.06);
+      0 1px 4px rgba(0, 0, 0, 0.06);
   }
+
   .glass-card--selected {
     border-color: var(--pop-pink);
     box-shadow: 0 0 0 2px var(--pop-pink),
-                0 4px 24px rgba(255, 110, 180, 0.25);
+      0 4px 24px rgba(255, 110, 180, 0.25);
   }
 
-  /* 2.3.B. 폴라로이드 카드 (.polaroid-card) */
+  /* 2.3.B. 폴라로이드 카드 (.polaroid-card) — Phoning 홈 화면 직접 참조 */
   .polaroid-card {
     background: #FFFFFF;
-    padding: 10px 10px 36px 10px; /* 하단 여백이 더 큼 = 폴라로이드 특성 */
+    padding: 10px 10px 36px 10px;
+    /* 하단 여백이 더 큼 = 폴라로이드 특성 */
     border-radius: 3px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.14), 0 2px 6px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.08);
     transform: rotate(-1.5deg);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
-  .polaroid-card:nth-child(even)  { transform: rotate(1.2deg); }
-  .polaroid-card:nth-child(3n)    { transform: rotate(-0.8deg); }
-  .polaroid-card:hover            { transform: rotate(0deg) scale(1.04); box-shadow: 0 12px 32px rgba(0,0,0,0.2); }
+
+  .polaroid-card:nth-child(even) {
+    transform: rotate(1.2deg);
+  }
+
+  .polaroid-card:nth-child(3n) {
+    transform: rotate(-0.8deg);
+  }
+
+  .polaroid-card:hover {
+    transform: rotate(0deg) scale(1.04);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+  }
 
   .polaroid-card__image {
     width: 100%;
@@ -150,8 +188,9 @@
     object-fit: cover;
     border-radius: 1px;
   }
+
   .polaroid-card__name {
-    font-family: var(--font-display-full);
+    font-family: 'NeoDunggeunmo', monospace;
     font-size: 0.78rem;
     color: #555;
     text-align: center;
@@ -159,12 +198,13 @@
     letter-spacing: 0.03em;
   }
 
-  /* 2.3.C. LIVE 배지 + 시청자 카운터 */
+  /* 2.3.C. LIVE 배지 + 시청자 카운터 — Weverse/VLIVE 직접 참조 */
   .live-badge {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    background: var(--badge-live);  /* #FF3B30 */
+    background: var(--badge-live);
+    /* #FF3B30 */
     color: white;
     font-size: 0.72rem;
     font-weight: 700;
@@ -172,19 +212,23 @@
     border-radius: 4px;
     letter-spacing: 0.08em;
   }
+
   .live-dot {
-    width: 6px; height: 6px;
+    width: 6px;
+    height: 6px;
     background: white;
     border-radius: 50%;
   }
-  .viewer-count, .chat-count {
+
+  .viewer-count,
+  .chat-count {
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-secondary);
     font-variant-numeric: tabular-nums;
   }
 
-  /* 2.3.D. 채팅 오버레이 */
+  /* 2.3.D. 채팅 오버레이 — Weverse LIVE 직접 참조 */
   .chat-container {
     position: absolute;
     bottom: 80px;
@@ -195,6 +239,7 @@
     gap: 6px;
     pointer-events: none;
   }
+
   .chat-bubble {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(8px);
@@ -203,20 +248,22 @@
     max-width: 100%;
     animation: slideUpFade 0.3s ease-out;
     font-size: 0.82rem;
-    will-change: transform, opacity;
   }
+
   .chat-bubble__username {
     font-weight: 700;
     color: var(--pop-blue);
     margin-right: 6px;
     font-size: 0.75rem;
   }
+
   .chat-bubble--highlight {
-    background: rgba(255, 217, 61, 0.9); /* 슈퍼챗 강조 */
+    background: rgba(255, 217, 61, 0.9);
+    /* 슈퍼챗 강조 */
     border: 1px solid var(--pop-yellow);
   }
 
-  /* 2.3.E. 하트 파티클 */
+  /* 2.3.E. 하트 파티클 — Weverse/VLIVE 직접 참조 */
   .heart-float {
     position: fixed;
     bottom: 80px;
@@ -224,7 +271,6 @@
     animation: floatUp 1.6s ease-out forwards;
     pointer-events: none;
     z-index: 100;
-    will-change: transform, opacity;
   }
 
   /* 2.3.F. Phoning 메시지 스타일 AI Staff 카드 */
@@ -236,28 +282,58 @@
     cursor: pointer;
     transition: background 0.15s;
   }
-  .staff-message-card:active { background: rgba(74, 159, 224, 0.08); }
 
-  .staff-avatar-wrap { position: relative; flex-shrink: 0; }
-  .staff-avatar      { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+  .staff-message-card:active {
+    background: rgba(74, 159, 224, 0.08);
+  }
+
+  .staff-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .staff-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
   .online-dot {
     position: absolute;
-    bottom: 2px; right: 2px;
-    width: 10px; height: 10px;
-    background: var(--badge-online);  /* #34C759 */
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background: var(--badge-online);
+    /* #34C759 */
     border: 2px solid white;
     border-radius: 50%;
   }
 
-  .staff-name    { font-weight: 700; font-size: 0.9rem; color: var(--text-primary); }
-  .staff-time    { font-size: 0.72rem; color: var(--text-meta); margin-left: auto; }
-  .staff-preview { font-size: 0.82rem; color: var(--text-secondary); }
+  .staff-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+  }
+
+  .staff-time {
+    font-size: 0.72rem;
+    color: var(--text-meta);
+    margin-left: auto;
+  }
+
+  .staff-preview {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+  }
 
   .unread-badge {
     min-width: 20px;
     height: 20px;
     padding: 0 5px;
-    background: var(--badge-unread);  /* #FF3B30 */
+    background: var(--badge-unread);
+    /* #FF3B30 */
     color: white;
     font-size: 0.7rem;
     font-weight: 700;
@@ -269,23 +345,32 @@
     animation: badgePop 0.3s ease;
   }
 
-  /* 2.3.G. 컬렉션 배지 스트립 */
-  .badge-strip    { display: flex; gap: 6px; flex-wrap: wrap; }
-  .history-badge  {
-    width: 32px; height: 32px;
+  /* 2.3.G. 컬렉션 배지 스트립 — Weverse 컬렉션 UI 참조 */
+  .badge-strip {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .history-badge {
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1rem;
-    background: rgba(255,255,255,0.8);
-    border: 2px solid rgba(255,255,255,0.6);
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid rgba(255, 255, 255, 0.6);
     cursor: default;
     transition: transform 0.15s;
   }
-  .history-badge:hover { transform: scale(1.2); }
 
-  /* 2.3.H. Y2K 배경 데코 레이어 */
+  .history-badge:hover {
+    transform: scale(1.2);
+  }
+
+  /* 2.3.H. Y2K 배경 데코 레이어 — Phoning 홈 화면 직접 참조 */
   .deco-item {
     position: fixed;
     pointer-events: none;
@@ -295,57 +380,158 @@
   }
 }
 
-/* 5. 애니메이션 시스템 */
+/* 5. 애니메이션 시스템 (Phoning/Weverse 패턴 추출) */
+
+/* 1. 카드 등장 — Phoning 피드 로딩 스타일 */
 @keyframes cardSlideUp {
-  from { opacity: 0; transform: translateY(24px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-.card-enter { animation: cardSlideUp 0.35s ease-out; }
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
 
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.card-enter {
+  animation: cardSlideUp 0.35s ease-out;
+}
+
+/* 2. 채팅 말풍선 — Weverse LIVE 채팅 스타일 */
 @keyframes slideUpFade {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
+/* 3. 하트 파티클 — Weverse/VLIVE 스타일 */
 @keyframes floatUp {
-  0%   { opacity: 1; transform: translateY(0) scale(1); }
-  60%  { opacity: 0.85; transform: translateY(-110px) scale(1.25); }
-  100% { opacity: 0; transform: translateY(-180px) scale(0.7); }
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  60% {
+    opacity: 0.85;
+    transform: translateY(-110px) scale(1.25);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-180px) scale(0.7);
+  }
 }
 
+/* 4. 미읽 배지 팝 — Phoning 배지 등장 */
 @keyframes badgePop {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.4); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.4);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
+/* 5. 카운트다운 긴장감 — 결과 화면 */
 @keyframes countPulse {
-  0%   { transform: scale(1.6); opacity: 0; }
-  30%  { transform: scale(1);   opacity: 1; }
-  70%  { transform: scale(1);   opacity: 1; }
-  100% { transform: scale(0.8); opacity: 1; }
+  0% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+
+  30% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  70% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
 }
 
+/* 6. 골드 파티클 — 1위 달성 */
 @keyframes particleBurst {
-  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(0);
+    opacity: 0;
+  }
 }
 
+/* 7. Y2K 바운스 — 버튼 클릭 피드백 */
 @keyframes bounceSlight {
-  0%, 100% { transform: scale(1); }
-  50%       { transform: scale(0.94); }
-}
-.neo-btn:active { animation: bounceSlight 0.15s ease; }
 
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.94);
+  }
+}
+
+.neo-btn:active {
+  animation: bounceSlight 0.15s ease;
+}
+
+/* 8. Y2K 데코 오브젝트 부유 */
 @keyframes floatDeco {
-  0%, 100% { transform: translateY(0px) rotate(var(--r)); }
-  50%       { transform: translateY(-12px) rotate(calc(var(--r) + 5deg)); }
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(var(--r));
+  }
+
+  50% {
+    transform: translateY(-12px) rotate(calc(var(--r) + 5deg));
+  }
 }
 
+/* 9. 화면 흔들림 — 나락 결과 */
 @keyframes shakeScreen {
-  0%, 100% { transform: translateX(0); }
-  20%       { transform: translateX(-8px); }
-  40%       { transform: translateX(8px); }
-  60%       { transform: translateX(-5px); }
-  80%       { transform: translateX(5px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-8px);
+  }
+
+  40% {
+    transform: translateX(8px);
+  }
+
+  60% {
+    transform: translateX(-5px);
+  }
+
+  80% {
+    transform: translateX(5px);
+  }
 }

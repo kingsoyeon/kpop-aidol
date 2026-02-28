@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { GameState } from '@/types/game'
 import { Button } from '@/components/ui/button'
 
@@ -9,9 +9,15 @@ interface Props {
 
 interface ChatMessage {
     id: string
-    username: string
-    text: string
-    isHighlight?: boolean
+    username: string    /* 팬 닉네임 */
+    text: string        /* 채팅 내용 (한/영 혼용) */
+    isHighlight?: boolean /* 슈퍼챗 강조 */
+}
+
+interface HeartData {
+    id: string
+    delay: number
+    right: number
 }
 
 const CHAT_POOL = [
@@ -22,14 +28,7 @@ const CHAT_POOL = [
 ]
 const USERNAMES = ['tokki', 'kpop_fan1', 'stan_nova', 'luv_idol', 'jieun_99', 'happy_fan', 'music_lover', 'souloosong']
 
-const HeartParticle = ({ delay = 0 }: { delay?: number }) => (
-    <div
-        className="heart-float"
-        style={{ animationDelay: `${delay}ms`, right: `${16 + Math.random() * 24}px` }}
-    >
-        ❤️
-    </div>
-)
+const MAX_CHAT = 6
 
 export default function MusicShowPhase({ gameState, updateState }: Props) {
     const [chats, setChats] = useState<ChatMessage[]>([])
@@ -37,9 +36,9 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
     const [chatCount, setChatCount] = useState(5014)
     const [isJudging, setIsJudging] = useState(false)
     const [judgeData, setJudgeData] = useState<any>(null)
-    const [showHearts, setShowHearts] = useState(false)
+    const [hearts, setHearts] = useState<HeartData[]>([])
 
-    // 1. 팬 채팅 애니메이션용 useEffect (분리 필수)
+    // 1. 팬 채팅 애니메이션용 useEffect (심사 중이거나 이미 심사 데이터가 있을 때 활성화)
     useEffect(() => {
         if (!isJudging && !judgeData) return
 
@@ -57,23 +56,38 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
 
             setChats(prev => {
                 const next = [...prev, newChat]
-                return next.length > 6 ? next.slice(-6) : next
+                return next.length > MAX_CHAT ? next.slice(-MAX_CHAT) : next
             })
 
             setViewerCount(p => p + Math.floor(Math.random() * 100))
             setChatCount(p => p + 1)
 
-            if (Math.random() < 0.3) {
-                setShowHearts(true)
-                setTimeout(() => setShowHearts(false), 200)
+            // 하트 파티클 트리거 (0.4~0.8초 간격 랜덤 트리거는 CSS/Interval 조합으로 구현)
+            if (Math.random() < 0.4) {
+                spawnHearts(1)
             }
         }, 800)
 
         return () => clearInterval(chatInterval)
-    }, [isJudging, judgeData])
+    }, [isJudging, !!judgeData])
+
+    const spawnHearts = useCallback((count: number) => {
+        const newHearts = Array.from({ length: count }).map(() => ({
+            id: crypto.randomUUID(),
+            delay: Math.random() * 200,
+            right: 16 + Math.random() * 24
+        }))
+        setHearts(prev => [...prev, ...newHearts])
+
+        // 2초 후 제거 (애니메이션 종료 시점)
+        setTimeout(() => {
+            setHearts(prev => prev.filter(h => !newHearts.find(nh => nh.id === h.id)))
+        }, 2000)
+    }, [])
 
     // 2. 심사 API 호출 (User action triggered)
     const startJudge = async () => {
+        if (isJudging) return
         setIsJudging(true)
         try {
             const res = await fetch('/api/judge', {
@@ -88,12 +102,18 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
             })
             const data = await res.json()
             setJudgeData(data)
+
+            // 1위 시 하트 파티클 대량 발사
+            if (data.result === '1위') {
+                spawnHearts(15)
+            }
         } catch (err) {
             console.error(err)
-            setJudgeData({
+            const fallbackData = {
                 scores: { composition: 70, vocal: 70, performance: 70, popularity: 70, buzz: 70 },
                 totalScore: 70, chartProbability: 50, comment: '음... 평가를 보류하겠습니다.', result: '중위권'
-            })
+            }
+            setJudgeData(fallbackData)
         } finally {
             setIsJudging(false)
         }
@@ -107,7 +127,6 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                 result: judgeData.result
             }],
             phase: 'result',
-            // 임시로 judgeData를 pendingEvent에 객체로 담아서 resultPhase로 전달 (or resultPhase에서 처리 가능하게)
             pendingEvent: { type: 'judgeResult', data: judgeData }
         })
     }
@@ -116,40 +135,40 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
 
     return (
         <div className="flex flex-col w-full h-full pb-24 animate-in fade-in duration-500">
-            {/* 라이브 대시보드 */}
+            {/* 2.3.C. LIVE 대시보드 */}
             <div className="live-dashboard flex items-center justify-between bg-black/5 rounded-lg p-2 mb-4 mt-2">
                 <span className="live-badge">
                     <span className="live-dot animate-pulse" />
                     LIVE
                 </span>
                 <div className="flex gap-4">
-                    <span className="viewer-count text-[#FF3B30]">👁 {viewerCount.toLocaleString()}</span>
-                    <span className="chat-count text-[#4A9FE0]">💬 {chatCount.toLocaleString()}</span>
+                    <span className="viewer-count">👁 {viewerCount.toLocaleString()}</span>
+                    <span className="chat-count">💬 {chatCount.toLocaleString()}</span>
                 </div>
             </div>
 
             <div className="mb-4">
-                <h1 className="text-2xl font-bold font-['NeoDunggeunmo'] text-[#4A9FE0]">음악 방송 출격</h1>
+                <h1 className="text-2xl font-bold font-display text-[#4A9FE0]">음악 방송 출격</h1>
                 <p className="text-xs text-slate-500 mt-1">
                     [{gameState.currentTrack?.title || '현재 음원'}] 무대 시작!
                 </p>
             </div>
 
-            {/* 무대 영상 영역 (현재 그룹 표시) */}
+            {/* 무대 영역 */}
             <div className="relative w-full aspect-video bg-gradient-to-br from-slate-800 to-black rounded-xl overflow-hidden shadow-lg border-2 border-slate-700/50 mb-6 flex items-center justify-center">
                 {isJudging ? (
-                    <div className="text-[#FF6EB4] font-bold text-xl animate-pulse tracking-widest">
+                    <div className="text-[#FF6EB4] font-bold text-xl animate-pulse tracking-widest font-display">
                         PERFORMING...
                     </div>
                 ) : judgeData ? (
-                    <div className="text-[#4ECDC4] font-bold text-xl animate-in zoom-in">
+                    <div className="text-[#4ECDC4] font-bold text-xl animate-in zoom-in font-display">
                         STAGE CLEAR!
                     </div>
                 ) : (
-                    <div className="text-white/50 font-bold">대기중...</div>
+                    <div className="text-white/50 font-bold font-display">대기중...</div>
                 )}
 
-                {/* 채팅 오버레이 */}
+                {/* 2.3.D. 채팅 오버레이 */}
                 <div className="chat-container">
                     {chats.map(chat => (
                         <div key={chat.id} className={`chat-bubble ${chat.isHighlight ? 'chat-bubble--highlight' : ''}`}>
@@ -159,17 +178,29 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
                     ))}
                 </div>
 
-                {/* 하트 파티클 */}
-                {showHearts && (
-                    <HeartParticle />
-                )}
+                {/* 2.3.E. 하트 파티클 */}
+                {hearts.map(heart => (
+                    <div
+                        key={heart.id}
+                        className="heart-float"
+                        style={{
+                            animationDelay: `${heart.delay}ms`,
+                            right: `${heart.right}px`
+                        }}
+                    >
+                        ❤️
+                    </div>
+                ))}
             </div>
 
             {/* 심사 시작 컨테이너 */}
             <div className="glass-card p-5 mb-4 relative overflow-hidden min-h-[220px]">
                 {!judgeData && !isJudging && (
                     <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-10">
-                        <Button onClick={startJudge} className="bg-[#FF6EB4] hover:bg-[#ff4e9f] text-white font-bold px-8 shadow-lg">
+                        <Button
+                            onClick={startJudge}
+                            className="bg-[#FF6EB4] hover:bg-[#ff4e9f] text-white font-bold px-8 shadow-lg neo-btn"
+                        >
                             심사 시작
                         </Button>
                     </div>
@@ -215,7 +246,7 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
             <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 p-4 z-40 shadow-[0_-4px_24px_rgba(0,0,0,0.05)]">
                 <div className="max-w-sm mx-auto">
                     <Button
-                        className="w-full h-14 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white text-lg font-bold rounded-xl shadow-[0_4px_14px_rgba(74,159,224,0.4)] disabled:bg-slate-300 disabled:text-white transition-all duration-300"
+                        className="w-full h-14 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white text-lg font-bold rounded-xl shadow-[0_4px_14px_rgba(74,159,224,0.4)] disabled:bg-slate-300 disabled:text-white transition-all duration-300 neo-btn"
                         onClick={handleResult}
                         disabled={!judgeData || isJudging}
                     >
@@ -226,3 +257,4 @@ export default function MusicShowPhase({ gameState, updateState }: Props) {
         </div>
     )
 }
+

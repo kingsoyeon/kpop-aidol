@@ -81,7 +81,7 @@ export default function EventCard({ gameState, updateState }: Props) {
 
                 <div className="flex items-center gap-2 text-[#EF4444] mb-4">
                     <AlertTriangle className="w-6 h-6" />
-                    <h2 className="text-xl font-bold font-['NeoDunggeunmo']">긴급 이벤트 발생</h2>
+                    <h2 className="text-xl font-bold font-display">긴급 이벤트 발생</h2>
                 </div>
 
                 <h3 className="text-2xl font-bold text-slate-800 mb-2 leading-tight break-keep">{eventData.title}</h3>
@@ -106,17 +106,17 @@ export default function EventCard({ gameState, updateState }: Props) {
                             <div className="font-bold text-slate-700 mb-1">{choice.text}</div>
                             <div className="flex flex-wrap gap-2 mt-2">
                                 {choice.effect.reputation !== 0 && (
-                                    <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-sm ${choice.effect.reputation > 0 ? 'bg-[#10B981]/10 text-[#10B981]' : 'bg-[#EF4444]/10 text-[#EF4444]'}`}>
+                                    <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-sm stat-number ${choice.effect.reputation > 0 ? 'bg-[#10B981]/10 text-[#10B981]' : 'bg-[#EF4444]/10 text-[#EF4444]'}`}>
                                         평판 {choice.effect.reputation > 0 ? '+' : ''}{choice.effect.reputation}
                                     </span>
                                 )}
                                 {choice.effect.money !== 0 && (
-                                    <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-sm ${choice.effect.money > 0 ? 'bg-[#10B981]/10 text-[#10B981]' : 'bg-[#EF4444]/10 text-[#EF4444]'}`}>
+                                    <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-sm stat-number ${choice.effect.money > 0 ? 'bg-[#10B981]/10 text-[#10B981]' : 'bg-[#EF4444]/10 text-[#EF4444]'}`}>
                                         자금 {choice.effect.money > 0 ? '+' : ''}{(Math.abs(choice.effect.money) / 10000)}만
                                     </span>
                                 )}
                                 {choice.effect.fanCount !== 0 && (
-                                    <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-sm ${choice.effect.fanCount > 0 ? 'bg-[#10B981]/10 text-[#10B981]' : 'bg-[#EF4444]/10 text-[#EF4444]'}`}>
+                                    <span className={`text-[0.65rem] font-bold px-2 py-0.5 rounded-sm stat-number ${choice.effect.fanCount > 0 ? 'bg-[#10B981]/10 text-[#10B981]' : 'bg-[#EF4444]/10 text-[#EF4444]'}`}>
                                         팬덤 {choice.effect.fanCount > 0 ? '+' : ''}{choice.effect.fanCount}
                                     </span>
                                 )}
@@ -130,7 +130,7 @@ export default function EventCard({ gameState, updateState }: Props) {
                     <p className="text-[#4A9FE0] font-bold mb-6">{selectedChoice.resultMessage}</p>
 
                     <Button
-                        className="w-full h-12 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white font-bold rounded-xl shadow-[0_4px_14px_rgba(74,159,224,0.4)]"
+                        className="w-full h-12 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white font-bold rounded-xl shadow-[0_4px_14px_rgba(74,159,224,0.4)] neo-btn"
                         onClick={handleNext}
                     >
                         다음 턴으로 넘어가기

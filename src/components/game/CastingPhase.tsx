@@ -65,7 +65,7 @@ export default function CastingPhase({ gameState, updateState }: Props) {
     return (
         <div className="flex flex-col w-full h-full pb-20 animate-in fade-in duration-500">
             <div className="mb-6 mt-4">
-                <h1 className="text-2xl font-bold font-['NeoDunggeunmo'] text-[#4A9FE0] drop-shadow-sm">
+                <h1 className="text-2xl font-bold font-display text-[#4A9FE0] drop-shadow-sm">
                     연습생 캐스팅
                 </h1>
                 <p className="text-xs text-slate-500 mt-1">
@@ -99,13 +99,13 @@ export default function CastingPhase({ gameState, updateState }: Props) {
             <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 p-4 z-40 shadow-[0_-4px_24px_rgba(0,0,0,0.05)]">
                 <div className="max-w-sm mx-auto flex items-center justify-between gap-4">
                     <div className="flex flex-col">
-                        <span className="text-xs text-slate-500 font-bold">선택 <span className="text-[#FF6EB4]">{selectedIds.size}</span>명</span>
+                        <span className="text-xs text-slate-500 font-bold">선택 <span className="text-[#FF6EB4] stat-number">{selectedIds.size}</span>명</span>
                         <span className="text-sm text-slate-800 font-bold stat-number">
                             {(selectedIds.size * 200).toLocaleString()}만원
                         </span>
                     </div>
                     <Button
-                        className="flex-1 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white font-bold h-12 rounded-xl transition-transform active:scale-95 disabled:bg-slate-300 disabled:text-white"
+                        className="flex-1 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white font-bold h-12 rounded-xl transition-transform active:scale-95 disabled:bg-slate-300 disabled:text-white neo-btn"
                         onClick={handleConfirm}
                         disabled={selectedIds.size < 2 || loading}
                     >

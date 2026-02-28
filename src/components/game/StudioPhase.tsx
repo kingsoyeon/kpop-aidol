@@ -108,7 +108,7 @@ export default function StudioPhase({ gameState, updateState }: Props) {
     const getLoadingStage = () => {
         if (loadingElapsed < 8) return "가사 창작 중..."
         if (loadingElapsed < 18) return "사운드 설계 중..."
-        if (loadingElapsed < 75) return "AI 음원 합성 중... (핵심 구간)"
+        if (loadingElapsed < 75) return "AI 음원 합성 중..."
         return "마스터링 중..."
     }
 
@@ -118,7 +118,7 @@ export default function StudioPhase({ gameState, updateState }: Props) {
                 <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-[0_8px_32px_rgba(74,159,224,0.15)] flex flex-col items-center w-full max-w-[320px] text-center border border-white/60">
                     <Disc className="w-16 h-16 text-[#FF6EB4] animate-spin mb-6" style={{ animationDuration: '3s' }} />
                     <h2 className="text-xl font-bold text-slate-800 mb-2">{getLoadingStage()}</h2>
-                    <p className="text-sm text-slate-500 font-medium mb-6">소요 시간: {loadingElapsed}초</p>
+                    <p className="text-sm text-slate-500 font-medium mb-6">소요 시간: <span className="stat-number">{loadingElapsed}</span>초</p>
 
                     <div className="flex gap-[3px] items-end h-8 justify-center w-full">
                         {Array.from({ length: 20 }).map((_, i) => (
@@ -141,7 +141,7 @@ export default function StudioPhase({ gameState, updateState }: Props) {
         return (
             <div className="flex flex-col gap-6 animate-in slide-in-from-bottom-8 duration-500 pb-24">
                 <div className="text-center mt-4">
-                    <h1 className="text-2xl font-bold font-['NeoDunggeunmo'] text-[#4A9FE0]">음원 제작 완료</h1>
+                    <h1 className="text-2xl font-bold font-display text-[#4A9FE0]">음원 제작 완료</h1>
                 </div>
 
                 <div className="glass-card p-5 flex flex-col items-center text-center">
@@ -163,13 +163,13 @@ export default function StudioPhase({ gameState, updateState }: Props) {
                     <div className="max-w-sm mx-auto flex gap-3">
                         <Button
                             variant="outline"
-                            className="flex-1 h-14 rounded-xl border-[#4A9FE0]/30 text-[#4A9FE0] font-bold"
+                            className="flex-1 h-14 rounded-xl border-[#4A9FE0]/30 text-[#4A9FE0] font-bold neo-btn"
                             onClick={() => handleProduce(true)}
                         >
-                            <RefreshCw className="w-4 h-4 mr-1.5" /> 다시 제작 (-250만)
+                            <RefreshCw className="w-4 h-4 mr-1.5" /> 다시 제작 (<span className="stat-number">-250</span>만)
                         </Button>
                         <Button
-                            className="flex-1 h-14 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white font-bold rounded-xl shadow-[0_4px_14px_rgba(74,159,224,0.4)]"
+                            className="flex-1 h-14 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white font-bold rounded-xl shadow-[0_4px_14px_rgba(74,159,224,0.4)] neo-btn"
                             onClick={handleRelease}
                         >
                             발매하기
@@ -187,7 +187,7 @@ export default function StudioPhase({ gameState, updateState }: Props) {
     return (
         <div className="flex flex-col w-full h-full pb-24 animate-in fade-in duration-500 gap-6">
             <div className="mt-4">
-                <h1 className="text-2xl font-bold font-['NeoDunggeunmo'] text-[#4A9FE0]">스튜디오</h1>
+                <h1 className="text-2xl font-bold font-display text-[#4A9FE0]">스튜디오</h1>
                 <p className="text-xs text-slate-500 mt-1">신곡의 컨셉과 타겟 시장을 설정하세요.</p>
             </div>
 
@@ -233,13 +233,14 @@ export default function StudioPhase({ gameState, updateState }: Props) {
             <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 p-4 z-40 shadow-[0_-4px_24px_rgba(0,0,0,0.05)]">
                 <div className="max-w-sm mx-auto">
                     <Button
-                        className="w-full h-14 bg-[#FF6EB4] hover:bg-[#ff4e9f] text-white text-lg font-bold rounded-xl shadow-[0_4px_14px_rgba(255,110,180,0.4)] transition-transform active:scale-95"
+                        className="w-full h-14 bg-[#FF6EB4] hover:bg-[#ff4e9f] text-white text-lg font-bold rounded-xl shadow-[0_4px_14px_rgba(255,110,180,0.4)] transition-transform active:scale-95 neo-btn"
                         onClick={() => handleProduce(false)}
                     >
-                        음원 제작 시작 (총 {(totalCost / 10000).toLocaleString()}만원)
+                        음원 제작 시작 (총 <span className="stat-number">{(totalCost / 10000).toLocaleString()}</span>만원)
                     </Button>
                 </div>
             </div>
         </div>
     )
 }
+
