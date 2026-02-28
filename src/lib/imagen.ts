@@ -77,11 +77,11 @@ export async function generateIdolImage(data: { gender: string; age: number }): 
         console.error('[Imagen] Strategy 1 failed:', err?.message || err);
     }
 
-    // Strategy 2: Gemini 2.0 Pro image generation model (higher quality)
+    // Strategy 2: Gemini native image model (확인된 이미지 생성 지원 모델)
     try {
-        console.log(`[Imagen] Strategy 2: gemini-2.0-pro-exp (${data.gender}, ${data.age})...`);
+        console.log(`[Imagen] Strategy 2: gemini-3.1-flash-image-preview (${data.gender}, ${data.age})...`);
         const response = await client.models.generateContent({
-            model: 'gemini-2.0-pro-exp',
+            model: 'gemini-3.1-flash-image-preview',
             contents: flashPrompt,
             config: { responseModalities: ['IMAGE', 'TEXT'] },
         });

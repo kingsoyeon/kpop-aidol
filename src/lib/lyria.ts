@@ -47,7 +47,7 @@ export async function generateTrack(data: {
             instances: [{ prompt: lyriaPrompt }],
             parameters: { sampleCount: 1 }
         }),
-        signal: AbortSignal.timeout(90000), // 90초 타임아웃 필수
+        signal: AbortSignal.timeout(55000), // Vercel Hobby 60s 제한보다 5초 앞서 abort → fallback으로 깔끔하게 처리
     });
 
     if (!response.ok) {
