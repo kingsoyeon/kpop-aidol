@@ -3,6 +3,7 @@ import { GameState, Idol, GAME_CONSTANTS } from '@/types/game'
 import { Button } from '@/components/ui/button'
 import IdolCard from '@/components/ui/IdolCard'
 import { Loader2, AlertCircle } from 'lucide-react'
+import { translate } from '@/lib/i18n'
 
 interface Props {
     gameState: GameState
@@ -12,16 +13,19 @@ interface Props {
 /** PRD §4.2: 캐스팅 fallback — Imagen 실패 시 이니셜 아바타로 대체 */
 function buildFallbackCandidates(): Idol[] {
     const names = ['김민준', '이서연', '박도윤', '최하은']
+    const enNames = ['Minjun Kim', 'Seoyeon Lee', 'Doyun Park', 'Haeun Choi']
     const genders: ('male' | 'female')[] = ['male', 'female', 'male', 'female']
     return names.map((name, i) => ({
         id: `fallback-${i}`,
-        name,
+        name: name,
+        enName: enNames[i],
         age: 18 + i,
         gender: genders[i],
         imageUrl: `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(name)}`,
         stats: { dance: 70, vocal: 70, visual: 70, potential: 50, charisma: 70 },
         risk: { scandal: 20, romance: 15, conflict: 10 },
         geminiAnalysis: '균형 잡힌 기본기를 갖췄습니다.',
+        enGeminiAnalysis: 'Has well-balanced fundamentals.',
         isActive: true,
     }))
 }
@@ -98,16 +102,16 @@ export default function CastingPhase({ gameState, updateState }: Props) {
     return (
         <div className="flex flex-col w-full h-full pb-20 animate-in fade-in duration-500">
             <div className="mb-6 mt-4">
-                <h1 className="text-2xl font-bold font-display text-[#4A9FE0] drop-shadow-sm">
-                    새로운 연습생을 발굴하세요
+                <h1 className="text-2xl font-bold font-display text-[#4A9FE0] drop-shadow-sm break-keep">
+                    {translate('casting.title', gameState.locale)}
                 </h1>
-                <p className="text-xs text-slate-500 mt-1">
-                    프로필을 신중히 검토하여 최적의 그룹을 구성하세요. (최소 {GAME_CONSTANTS.CAST_MIN}명 ~ 최대 {GAME_CONSTANTS.CAST_MAX}명)
+                <p className="text-xs text-slate-500 mt-1 break-keep">
+                    {translate('casting.subtitle', gameState.locale)} {translate('casting.selectionLimit', gameState.locale, { min: GAME_CONSTANTS.CAST_MIN, max: GAME_CONSTANTS.CAST_MAX })}
                 </p>
                 {error && (
-                    <div className="flex items-center gap-1 mt-2 text-[#F59E0B] text-xs font-bold">
-                        <AlertCircle className="w-3 h-3" />
-                        AI 생성 불가 — 기본 연습생 카드로 대체됩니다.
+                    <div className="flex items-center gap-1 mt-2 text-[#F59E0B] text-xs font-bold break-keep">
+                        <AlertCircle className="w-3 h-3 flex-shrink-0" />
+                        {translate('casting.fallbackError', gameState.locale)}
                     </div>
                 )}
             </div>
@@ -130,6 +134,7 @@ export default function CastingPhase({ gameState, updateState }: Props) {
                                 idol={idol}
                                 isSelected={selectedIds.has(idol.id)}
                                 onToggle={() => toggleSelection(idol.id)}
+                                locale={gameState.locale}
                             />
                         </div>
                     ))}
@@ -140,22 +145,24 @@ export default function CastingPhase({ gameState, updateState }: Props) {
             <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-slate-200 p-4 z-40 shadow-[0_-4px_24px_rgba(0,0,0,0.05)]">
                 <div className="max-w-sm mx-auto flex items-center justify-between gap-4">
                     <div className="flex flex-col">
-                        <span className="text-xs text-slate-500 font-bold">선택 <span className="text-[#FF6EB4] stat-number">{selectedIds.size}</span>명</span>
+                        <span className="text-xs text-slate-500 font-bold whitespace-nowrap">
+                            {translate('casting.selectedCount', gameState.locale)} <span className="text-[#FF6EB4] stat-number">{selectedIds.size}</span>{translate('casting.personUnit', gameState.locale)}
+                        </span>
                         <span className={`text-sm font-bold stat-number ${!canAfford && selectedIds.size > 0 ? 'text-[#EF4444]' : 'text-slate-800'}`}>
-                            {(totalCost / 10000).toLocaleString()}만원
-                            {!canAfford && selectedIds.size > 0 && ' ⚠️'}
+                            {gameState.locale === 'en' ? '₩' : ''}{gameState.locale === 'en' ? totalCost.toLocaleString() : (totalCost / 10000).toLocaleString()}{translate('common.moneyUnit', gameState.locale)}
+                            {!canAfford && selectedIds.size > 0 ? ' ⚠️' : ''}
                         </span>
                     </div>
                     <Button
-                        className="flex-1 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white font-bold h-12 rounded-xl transition-transform active:scale-95 disabled:bg-slate-300 disabled:text-white neo-btn"
+                        className="flex-1 bg-[#4A9FE0] hover:bg-[#3b82f6] text-white font-bold h-12 rounded-xl transition-transform active:scale-95 disabled:bg-slate-300 disabled:text-white neo-btn whitespace-nowrap px-2"
                         onClick={handleConfirm}
                         disabled={selectedIds.size < GAME_CONSTANTS.CAST_MIN || loading || !canAfford}
                     >
                         {selectedIds.size < GAME_CONSTANTS.CAST_MIN
-                            ? `최소 ${GAME_CONSTANTS.CAST_MIN}명 선택`
+                            ? translate('casting.minSelectionReq', gameState.locale, { min: GAME_CONSTANTS.CAST_MIN })
                             : !canAfford
-                                ? '자금 부족'
-                                : '캐스팅 확정'}
+                                ? translate('casting.insufficientFunds', gameState.locale)
+                                : translate('casting.castConfirmBtn', gameState.locale)}
                     </Button>
                 </div>
             </div>

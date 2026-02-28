@@ -14,7 +14,7 @@ export async function generateText(prompt: string): Promise<string> {
 
     const geminiClient = getClient();
     const response = await geminiClient.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
+        model: 'gemini-2.5-flash',
         contents: prompt,
     });
     return response.text || '';
@@ -57,7 +57,7 @@ export async function generateJudgeJSON(prompt: string): Promise<string> {
 
     const geminiClient = getClient();
     const response = await geminiClient.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
             responseMimeType: 'application/json'
@@ -82,7 +82,7 @@ export async function generateEventJSON(prompt: string): Promise<string> {
 
     const geminiClient = getClient();
     const response = await geminiClient.models.generateContent({
-        model: 'gemini-3.1-pro-preview',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
             responseMimeType: 'application/json'

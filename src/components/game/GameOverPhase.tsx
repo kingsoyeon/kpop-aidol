@@ -1,5 +1,6 @@
 import { GameState, GAME_CONSTANTS } from '@/types/game'
 import { Button } from '@/components/ui/button'
+import { translate } from '@/lib/i18n'
 
 interface Props {
     gameState: GameState
@@ -10,15 +11,15 @@ export default function GameOverPhase({ gameState, updateState }: Props) {
     const isBankrupt = gameState.company.money <= 0
     const isDisbanded = gameState.company.reputation <= 0
 
-    let title = '게임 오버'
-    let description = '기획사 운영에 실패했습니다.'
+    let title = translate('gameover.title', gameState.locale)
+    let description = ''
 
     if (isBankrupt) {
-        title = '회사 파산'
-        description = '자금 고갈로 더 이상 아이돌을 육성할 수 없습니다.'
+        title = translate('gameover.bankruptcy', gameState.locale)
+        description = translate('gameover.bankruptcyDesc', gameState.locale)
     } else if (isDisbanded) {
-        title = '팬덤 이탈로 해체'
-        description = '평판이 바닥에 떨어져 그룹이 해체되었습니다.'
+        title = translate('gameover.reputationRuin', gameState.locale)
+        description = translate('gameover.reputationRuinDesc', gameState.locale)
     }
 
     // 최고 성적 계산
@@ -79,10 +80,10 @@ export default function GameOverPhase({ gameState, updateState }: Props) {
 
                 <Button
                     id="btn-restart"
-                    className="w-full h-14 bg-[#FF6EB4] hover:bg-[#ff4e9f] text-white text-lg font-bold rounded-xl shadow-[0_4px_14px_rgba(255,110,180,0.4)]"
+                    className="w-full h-14 bg-[#FF6EB4] hover:bg-[#ff4e9f] text-white text-lg font-bold rounded-xl shadow-[0_4px_14px_rgba(255,110,180,0.4)] neo-btn"
                     onClick={handleRestart}
                 >
-                    다시 시작하기
+                    {translate('gameover.restartBtn', gameState.locale)}
                 </Button>
             </div>
         </div>

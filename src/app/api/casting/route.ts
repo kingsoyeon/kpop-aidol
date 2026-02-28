@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 export const dynamic = "force-dynamic";
+export const maxDuration = 60; // Vercel Hobby 플랜 최대값
 import { generateIdolImage } from '@/lib/imagen'
 import { analyzeCandidate } from '@/lib/gemini'
 import { generateUUID } from '@/lib/utils/uuid'
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
         const candidates = await Promise.all(
             Array.from({ length: count }, async () => {
                 const gender = Math.random() > 0.5 ? 'female' : 'male'
-                const age = Math.floor(Math.random() * 8) + 16 // 16-23세
+                const age = Math.floor(Math.random() * 6) + 18 // 18-23세 (16-17 미성년자는 이미지 안전 필터에 차단됨)
 
                 let imageUrl = '';
                 try {

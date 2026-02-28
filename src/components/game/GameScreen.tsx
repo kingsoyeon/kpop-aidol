@@ -21,6 +21,7 @@ const initialState: GameState = {
     currentTrack: null,
     phase: 'intro',
     turn: 1,
+    locale: 'ko',
     history: [],
     pendingEvent: null,
 }
@@ -42,16 +43,39 @@ export default function GameScreen() {
             <div className="deco-item" style={{ top: '80%', left: '7%', fontSize: '1.1rem', opacity: 0.5, '--r': '-5deg', '--delay': '1.5s' } as React.CSSProperties}>💖</div>
             <div className="deco-item" style={{ top: '90%', right: '10%', fontSize: '1.3rem', opacity: 0.6, '--r': '20deg', '--delay': '2.5s' } as React.CSSProperties}>🌟</div>
 
-            {/* 상단 HUD — intro/gameover 페이즈에서는 숨김 */}
-            {gameState.phase !== 'intro' && gameState.phase !== 'gameover' && (
-                <div className="sticky top-0 w-full bg-white/40 backdrop-blur-[16px] border-b border-white/50 p-4 z-50">
-                    <div className="flex justify-between items-center max-w-sm mx-auto text-[0.9375rem]">
-                        <span className="stat-number text-slate-800 font-bold">💰 {gameState.company.money.toLocaleString()}원</span>
-                        <span className="stat-number text-slate-800 font-bold">⭐ <span className="stat-number">{gameState.company.reputation}</span>점</span>
-                        <span className="stat-number text-slate-800 font-bold">👥 {gameState.company.fanCount.toLocaleString()}명</span>
+            {/* 상단 HUD — intro/gameover 페이즈에서는 로케일 토글만 표시 */}
+            <div className={`sticky top-0 w-full px-3 py-2 z-50 flex items-center gap-2 ${gameState.phase === 'intro' || gameState.phase === 'gameover' ? 'justify-end' : 'justify-between bg-white/40 backdrop-blur-[16px] border-b border-white/50'}`}>
+                {gameState.phase !== 'intro' && gameState.phase !== 'gameover' && (
+                    <div className="flex items-center gap-2 mr-auto min-w-0 overflow-hidden">
+                        <span className="stat-number text-slate-800 font-bold text-[0.78rem] whitespace-nowrap">💰 {gameState.locale === 'en' ? '₩' : ''}{gameState.locale === 'ko' ? Math.floor(gameState.company.money / 10000).toLocaleString() + '만' : gameState.company.money.toLocaleString()}</span>
+                        <span className="stat-number text-slate-800 font-bold text-[0.78rem] whitespace-nowrap">⭐ {gameState.company.reputation}{gameState.locale === 'ko' ? '점' : ''}</span>
+                        <span className="stat-number text-slate-800 font-bold text-[0.78rem] whitespace-nowrap">👥 {gameState.company.fanCount.toLocaleString()}{gameState.locale === 'ko' ? '명' : ''}</span>
                     </div>
+                )}
+
+                {/* 언어 토글 + 리셋 버튼 그룹 */}
+                <div className="flex items-center gap-1.5 flex-shrink-0 ml-auto">
+                    {gameState.phase !== 'intro' && gameState.phase !== 'gameover' && (
+                        <button
+                            onClick={() => updateState({
+                                company: { name: '', money: GAME_CONSTANTS.INITIAL_MONEY, reputation: GAME_CONSTANTS.INITIAL_REPUTATION, fanCount: GAME_CONSTANTS.INITIAL_FAN_COUNT },
+                                roster: [], currentGroup: [], currentTrack: null,
+                                phase: 'intro', turn: 1, history: [], pendingEvent: null,
+                                locale: gameState.locale,
+                            })}
+                            className="bg-white/60 border border-slate-200 text-slate-500 px-2.5 py-1 rounded-full text-[0.7rem] font-bold shadow-sm hover:bg-white transition-colors"
+                        >
+                            🔄
+                        </button>
+                    )}
+                    <button
+                        onClick={() => updateState({ locale: gameState.locale === 'ko' ? 'en' : 'ko' })}
+                        className="bg-white/60 border border-slate-200 text-slate-600 px-2.5 py-1 rounded-full text-[0.7rem] font-bold shadow-sm hover:bg-white transition-colors"
+                    >
+                        {gameState.locale === 'ko' ? 'KO' : 'EN'}
+                    </button>
                 </div>
-            )}
+            </div>
 
             {/* 게임 페이즈 렌더링 */}
             <div className="pt-6 max-w-sm mx-auto px-4 relative z-10 w-full">
